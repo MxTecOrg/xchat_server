@@ -4,7 +4,8 @@
   "description": "A realtime chat server using socket.io",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test" : "node server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
