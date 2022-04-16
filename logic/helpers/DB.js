@@ -36,8 +36,9 @@ const DB = {
     
     
     autoSave: function(time) {
+        const su = this.saveUsers;
         async function s() {
-            await this.saveUsers();
+            await su();
         }
         setInterval(s , time);
     },
