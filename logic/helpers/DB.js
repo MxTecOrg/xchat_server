@@ -152,7 +152,7 @@ const DB = {
     
     getTokenPair: function (token){
         return TOKEN_PAIRS[token]
-    }
+    },
     
     delTokenPair: function (token){
         delete TOKEN_PAIRS[token]
