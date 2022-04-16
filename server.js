@@ -10,7 +10,7 @@ const io = require("socket.io")(server);
 const router = require(config.LOGIC + "/router.js");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const DB = require(config.LOGIC + "/helper/DB.js");
+const DB = require(config.LOGIC + "/helpers/DB.js");
 
 app.use(cors());
 
