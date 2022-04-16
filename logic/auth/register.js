@@ -13,7 +13,8 @@ const register = async (req , res) => {
     let username,
     email,
     password,
-    rpassword;
+    rpassword,
+    token;
   
     try {
         const body = req.body;
@@ -21,6 +22,7 @@ const register = async (req , res) => {
         email = (body.email ? body.email : undefined);
         password = (body.password ? body.password : undefined);
         rpassword = (body.rpassword ? body.rpassword : undefined);
+        token = (body.token ? body.token : undefined)
     } catch (err) {
         return res.json({
             status: false,
