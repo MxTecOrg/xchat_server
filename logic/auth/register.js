@@ -29,29 +29,50 @@ const register = async (req , res) => {
             data: "DATA_ERROR"
         });
     }
+    const pair = DB.getTokenPair(email);
+    if(!token){
+        return res.json({
+            status : false,
+            data : "EMPTY_TOKEN"
+        });
+    }
+    
+    else if(!pair){
+        return res.json({
+            status : false,
+            data : "TOKEN_TIMEOUT"
+        });
+    }
+    
+    else if(pair != token){
+        return res.json({
+            status: false,
+            data: "WRONG_TOKEN"
+        });
+    }
   
-    if (!username) {
+    else if (!username) {
         return res.json({
             status: false,
             data: "EMPTY_USER"
         });
     }
 
-    if (!email) {
+    else if (!email) {
         return res.json({
             status: false, 
             data: "EMPTY_MAIL"
         });
     }
 
-    if (!password) {
+    else if (!password) {
         return res.json({
             status: false,
             data: "EMPTY_PASS"
         });
     }
   
-    if (!validateEmail(email)) {
+    else if (!validateEmail(email)) {
         return res.json({
             status: false,
             data: "WRONG_MAIL"
