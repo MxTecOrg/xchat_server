@@ -5,7 +5,7 @@
 const fs = require("fs");
 const config = require("../../config.js");
 
-var USERS = {} , BOTS = {} , CHANNELS = {};
+var USERS = {} , BOTS = {} , CHANNELS = {} , TOKEN_PAIRS = {};
 
 const DB = {
     loadUsers: function () {
@@ -144,6 +144,18 @@ const DB = {
             USERS[id][key] += value;
             return true;
         } else return null;
+    },
+    
+    addTokenPair : function (token , _token){
+        TOKEN_PAIRS[token] = _token;
+    },
+    
+    getTokenPair: function (token){
+        return TOKEN_PAIRS[token]
+    }
+    
+    delTokenPair: function (token){
+        delete TOKEN_PAIRS[token]
     }
 };
 
