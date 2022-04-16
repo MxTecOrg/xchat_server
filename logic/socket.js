@@ -2,7 +2,7 @@ const config = require("../config.js");
 const io = require(config.DIRNAME + "/server.js");
 const auth = require(config.LOGIC + "/auth/authenticator.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
-const load = require(config.LOGIC + "/socket/Socks.js");
+//const load = require(config.LOGIC + "/socket/Socks.js");
 
 io.on("connection" , (socket) => {
     const token = socket.handshake.query.token;
@@ -16,7 +16,7 @@ io.on("connection" , (socket) => {
     io.sockets[id] = socket;
     DB.setUserValue(id , "isOnline" , true);
     
-    Socks(io , socket , id);
+    //Socks(io , socket , id);
     
     socket.on("disconnect" , (data) => {
         DB.setUserValue(id , "isOnline" , false);
