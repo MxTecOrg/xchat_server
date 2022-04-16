@@ -2,12 +2,12 @@ const config = require("../../config.js");
 
 const jwt = require("jsonwebtoken");
 
-function generate (_id) {
+function generate (_id , expi) {
     if (_id == null || _id == undefined) return null;
     return jwt.sign({
         id: _id
     }, config.TOKEN.secret, {
-        expiresIn: config.TOKEN.expire
+        expiresIn: (expi ? expi : config.TOKEN.expire)
     });
 }
 
