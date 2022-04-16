@@ -1,6 +1,7 @@
 const config = require("../../config.js");
 const uid = require(config.LOGIC + "/helpers/uid.js");
-const auth = require("authenticator");
+const auth = require("./authenticator.js");
+const DB = require(config.LOGIC + "/helpers/DB.js");
 const nodemailer = require("nodemailer");
 
 const transport = nodemailer.createTransport({
@@ -18,7 +19,7 @@ const verificator = async (req, res) => {
         const body = req.email;
         email = (body.email ? body.email: undefined);
         let _token = uid.num(5);
-        DB.addTokenPair(email , token)
+        DB.addTokenPair(email , _token)
         const message = {
             from: "XChat Team.",
             to: email,
