@@ -113,6 +113,8 @@ const register = async (req , res) => {
         color : "",
         profile_pic : "",
         chats : [],
+        banList : [],
+        acceptInvitations: true,
         isOnline: false,
         lastTimeOnline: new Date().getTime(),
         suscribed: false,
@@ -122,6 +124,7 @@ const register = async (req , res) => {
     
     account.id = uid.num(8);
     account.username = username;
+    account.color = "#000000".replace(/0/g,function(){return (~~((Math.random()*10) + 6)).toString(16);});
     account.nickname = "user_" + uid.alphanum(4);
     account.email = email;
     account.password = bcrypt.hashSync(password, 10);
