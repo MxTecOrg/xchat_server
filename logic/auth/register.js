@@ -112,7 +112,7 @@ const register = async (req , res) => {
         password: "",
         color : "",
         profile_pic : "",
-        chats : [],
+        rooms : [],
         banList : [],
         acceptInvitations: true,
         isOnline: false,
