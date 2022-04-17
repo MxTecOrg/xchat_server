@@ -355,10 +355,10 @@ const DB = {
         return nmess;
     },
 
-    editTextMess: function (id , chat_id , mess_id , newMess) {
+    editTextMess: function (id , chat_id , mess_id , newMess , del) {
         if (!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
         const mess = ROOMS[chat_id].messages[mess_id];
-        if (mess.user_id != id) return null;
+        if (mess.user_id != id && !del && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id) ) return null;
         if (mess.message == newMess) return null;
         mess.message = newMess;
         ROOMS[chat_id].messages[mess_id] = mess;
@@ -366,7 +366,7 @@ const DB = {
     },
 
     delMess: function (id , chat_id , mess_id) {
-        const ret = this.editTextMess(id, chat_id, mess_id, "El mensaje ha sido eliminado.");
+        const ret = this.editTextMess(id, chat_id, mess_id, "El mensaje ha sido eliminado.", true);
         if (ret) return ret;
         else return null;
     }
