@@ -188,7 +188,7 @@ const DB = {
         if (!USERS[user2] || USERS[user2].banList.includes(user)) return false;
         let Room = DB.getRoom(user + "-" + user2) || DB.getRoom(user2 + "-" + user);
         if (Room) return false;
-        const mess_id = uid.num(6);
+        const mess_id = uid.num(8);
         Room = user + "-" + user2;
         ROOMS[Room] = {
             chat_id: Room,
@@ -226,7 +226,7 @@ const DB = {
                 mem.push(m);
             }
         }
-        const mess_id = uid.num(6);
+        const mess_id = uid.num(8);
         ROOMS[chat_id] = {
             chat_id: chat_id,
             pic: (!pic ? "": pic),
