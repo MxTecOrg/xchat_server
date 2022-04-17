@@ -4,15 +4,8 @@ const auth = require(config.LOGIC + "/auth/authenticator.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 //const load = require(config.LOGIC + "/socket/Socks.js");
 
-io.on("connection", (socket) => {
-    const token = socket.handshake.query.token,
-    api = socket.handshake.query.api,
-    bot = socket.handshake.query.bot;
-
-    const typo = (api ? "api": (bot ? "bot": (token ? "token": "none")));
-
-    switch (typo) {
-        case "token":
+io.of("/client").on("connection", (socket) => {
+    const token = socket.handshake.query.token;
             const id = auth.verify(token);
             if (!id) return socket.disconnect();
 
@@ -27,12 +20,6 @@ io.on("connection", (socket) => {
                 DB.setUserValue(id, "isOnline", false);
                 delete io.socket[id];
             });
-            break;
-        case "api":
-            break;
-        case "bot":
-            break;
-    }
 });
 
 module.exports = true;
