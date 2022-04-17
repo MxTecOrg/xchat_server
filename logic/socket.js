@@ -6,20 +6,20 @@ const DB = require(config.LOGIC + "/helpers/DB.js");
 
 io.of("/client").on("connection", (socket) => {
     const token = socket.handshake.query.token;
-            const id = auth.verify(token);
-            if (!id) return socket.disconnect();
+    const id = auth.verify(token);
+    if (!id) return socket.disconnect();
 
-            if (!DB.findUserById(id)) return socket.disconnect();
+    if (!DB.findUserById(id)) return socket.disconnect();
 
-            io.sockets[id] = socket;
-            DB.setUserValue(id, "isOnline", true);
+    io.sockets[id] = socket;
+    DB.setUserValue(id, "isOnline", true);
 
-            //Socks(io , socket , id);
+    //Socks(io , socket , id);
 
-            socket.on("disconnect", (data) => {
-                DB.setUserValue(id, "isOnline", false);
-                delete io.socket[id];
-            });
+    socket.on("disconnect", (data) => {
+        DB.setUserValue(id, "isOnline", false);
+        delete io.socket[id];
+    });
 });
 
 module.exports = true;
