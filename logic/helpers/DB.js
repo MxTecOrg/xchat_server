@@ -219,7 +219,7 @@ const DB = {
         return ROOMS[Room]
     },
 
-    createRoom: function (chat_id , owner , name , desc , pic , members , type) {
+    createRoom: async function (chat_id , owner , name , desc , pic , members , type) {
         let mem = [owner];
         for (let m of members) {
             if (USERS[m] && USERS[m].acceptInvitations) {
@@ -227,7 +227,7 @@ const DB = {
             }
         }
         const mess_id = uid.num(8);
-        ROOMS[chat_id] = {
+        ROOMS[chat_id] = await {
             chat_id: chat_id,
             pic: (!pic ? "": pic),
             type: "group",
@@ -263,6 +263,14 @@ const DB = {
                 }}
         };
 
+        for (let m of ROOMS[chat_id].members) {
+            const Mess = Object.keys(ROOMS[chat_id].messages);
+            const lastMess = Mess[Mess.length - 1];
+            USERS[m].rooms.push({
+                id: chat_id, lastMess: lastMess
+            });
+        }
+
         return mem;
     },
 
@@ -273,31 +281,33 @@ const DB = {
         if (!ROOMS[chat_id]) return null;
         else return chat_id;
     },
-    
-    joinRoom: function (id , room){
-        if(!ROOMS[room]) return null;
+
+    joinRoom: function (id , room) {
+        if (!ROOMS[room]) return null;
         if (ROOMS[chat_id].members.includes(id)) return null;
         if (ROOMS[room].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
         ROOMS[room].members.push(id);
         const Mess = Object.keys(ROOMS[room].messages);
         const lastMess = Mess[Mess.length - 1];
-        USERS[id].rooms.push({id : room , lastMess : lastMess });
+        USERS[id].rooms.push({
+            id: room, lastMess: lastMess
+        });
         return true;
 
     },
-    
-    setLassMess : async function (id , chat_id){
-        if(!ROOMS[chat_id]) return null;
+
+    setLassMess: async function (id, chat_id) {
+        if (!ROOMS[chat_id]) return null;
         const Mess = Object.keys(ROOMS[room].messages);
         const lastMess = Mess[Mess.length - 1];
-        for(let r in USERS[id].rooms){
-            if(USERS[id].rooms[r].id == chat_id){
+        for (let r in USERS[id].rooms) {
+            if (USERS[id].rooms[r].id == chat_id) {
                 USERS[id].rooms[r].lastMess = lastMess;
                 return;
             }
         }
     },
-    
+
 
     joinRoomByLink: function (id , link) {
         const chat_id = this.findRoomByLink(link);
@@ -353,7 +363,7 @@ const DB = {
                 const mess = this.getRoomMessFrom(r.id, r.lastMess);
                 if (mess) {
                     allMess[r.id] = mess;
-                    await DB.setLastMess(id , r.id);
+                    await DB.setLastMess(id, r.id);
                 }
             }
             return allMess;
@@ -362,7 +372,7 @@ const DB = {
 
     newMess: function (id , chat_id , mess_id , type , message , reply) {
         const user = this.findUserById(id);
-        if(!ROOMS[chat_id]) return null;
+        if (!ROOMS[chat_id]) return null;
         const nmess = {
             mess_id: mess_id,
             user_id: id,
@@ -387,7 +397,7 @@ const DB = {
     editTextMess: function (id , chat_id , mess_id , newMess , del) {
         if (!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
         const mess = ROOMS[chat_id].messages[mess_id];
-        if (mess.user_id != id && !del && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id) ) return null;
+        if (mess.user_id != id && !del && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id)) return null;
         if (mess.message == newMess) return null;
         mess.message = newMess;
         ROOMS[chat_id].messages[mess_id] = mess;
