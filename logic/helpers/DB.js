@@ -273,11 +273,37 @@ const DB = {
         if (!ROOMS[chat_id]) return null;
         else return chat_id;
     },
+    
+    joinRoom: function (id , room){
+        if(!ROOMS[room]) return null;
+        if (ROOMS[chat_id].members.includes(id)) return null;
+        if (ROOMS[room].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
+        ROOMS[room].members.push(id);
+        const Mess = Object.keys(ROOMS[room].messages);
+        const lastMess = Mess[Mess.length - 1];
+        USERS[id].rooms.push({id : room , lastMess : lastMess });
+        return true;
+
+    },
+    
+    setLassMess : async function (id , chat_id){
+        if(!ROOMS[chat_id]) return null;
+        const Mess = Object.keys(ROOMS[room].messages);
+        const lastMess = Mess[Mess.length - 1];
+        for(let r in USERS[id].rooms){
+            if(USERS[id].rooms[r].id == chat_id){
+                USERS[id].rooms[r].lastMess = lastMess;
+                return;
+            }
+        }
+    },
+    
 
     joinRoomByLink: function (id , link) {
         const chat_id = this.findRoomByLink(link);
         if (!chat_id) return null;
         if (ROOMS[chat_id].banList.includes(id)) return null;
+        if (ROOMS[chat_id].members.includes(id)) return null;
         if (ROOMS[chat_id].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
         ROOMS[chat_id].members.push(id);
         return true;
@@ -318,14 +344,17 @@ const DB = {
         } else return null;
     },
 
-    getNewMess: function (id) {
+    getNewMess: async function (id) {
         const user = this.findUserById(id);
         if (user) {
             const rooms = user.rooms;
             let allMess = {};
             for (let r of rooms) {
                 const mess = this.getRoomMessFrom(r.id, r.lastMess);
-                if (mess) allMess[r.id] = mess;
+                if (mess) {
+                    allMess[r.id] = mess;
+                    await DB.setLastMess(id , r.id);
+                }
             }
             return allMess;
         } else return null;
