@@ -184,7 +184,7 @@ const DB = {
         delete TOKEN_PAIRS[token];
     },
 
-    createP2PRoom: function (user , user2) {
+    createPrivateRoom : function (user , user2) {
         if (!USERS[user2] || USERS[user2].banList.includes(user)) return false;
         let Room = DB.getRoom(user + "-" + user2) || DB.getRoom(user2 + "-" + user);
         if (Room) return false;
@@ -216,7 +216,7 @@ const DB = {
                     date: new Date()
                 }}
         };
-        return ROOMS[Room]
+        return ROOMS[Room];
     },
 
     createRoom: async function (chat_id , owner , name , desc , pic , members , type) {
