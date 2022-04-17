@@ -331,7 +331,7 @@ const DB = {
         } else return null;
     },
 
-    addMess: function (id , chat_id , mess_id , type , message , reply) {
+    newMess: function (id , chat_id , mess_id , type , message , reply) {
         const user = this.findUserById(id);
         if(!ROOMS[chat_id]) return null;
         const nmess = {
@@ -356,7 +356,6 @@ const DB = {
     },
 
     editTextMess: function (id , chat_id , mess_id , newMess) {
-        if (!id || !chat_id || !mess_id || !newMess) return null;
         if (!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
         const mess = ROOMS[chat_id].messages[mess_id];
         if (mess.user_id != id) return null;
