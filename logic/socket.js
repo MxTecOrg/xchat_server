@@ -2,10 +2,11 @@ const config = require("../config.js");
 const io = require(config.DIRNAME + "/server.js");
 const auth = require(config.LOGIC + "/auth/authenticator.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
-//const load = require(config.LOGIC + "/socket/Socks.js");
+const client = require(config.LOGIC + "/client/client.js");
 
 io.of("/client").on("connection", (socket) => {
     const token = socket.handshake.query.token;
+    if(!token) return socket.disconnect();
     const id = auth.verify(token);
     if (!id) return socket.disconnect();
 
@@ -14,7 +15,7 @@ io.of("/client").on("connection", (socket) => {
     io.sockets[id] = socket;
     DB.setUserValue(id, "isOnline", true);
 
-    //Socks(io , socket , id);
+    client(io , socket , id);
 
     socket.on("disconnect", (data) => {
         DB.setUserValue(id, "isOnline", false);
