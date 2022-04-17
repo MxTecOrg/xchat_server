@@ -1,10 +1,10 @@
 /**/
 const config = require("../../config.js");
-const chat = require("./chat");
+const uid = require(config.LOGIC + "/helpers/uid.js");
+const DB = require(config.LOGIC + "/helpers/DB.js");
 
-const client = async (io , socket , id) => {
+const chat = async (io , socket , id) => {
     chat(io , socket , id);
 };
 
-
-module.exports = client;
+module.exports = chat;
