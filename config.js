@@ -10,7 +10,7 @@ const config = {
         expire: "6h" 
     }, 
     SERVER: { version: "v0.0.1" },
-    ROOMS : {
+    ROOMS_CONFIG : {
         chats_mem : 100,
         channels_mem : 250,
         bots_mem : 500,
