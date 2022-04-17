@@ -295,7 +295,7 @@ const DB = {
         USERS[id].rooms.push({
             id: room, lastMess: lastMess
         });
-        return true;
+        return ROOMS[room];
 
     },
 
