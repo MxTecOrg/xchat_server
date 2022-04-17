@@ -263,7 +263,7 @@ const DB = {
                 }}
         };
 
-        return true;
+        return mem;
     },
 
     findRoomByLink: function (link) {
