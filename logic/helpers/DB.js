@@ -271,7 +271,7 @@ const DB = {
             });
         }
 
-        return mem;
+        return ROOMS[chat_id];
     },
 
     findRoomByLink: function (link) {
