@@ -197,21 +197,24 @@ const DB = {
             pinned: [],
             bgColor: "SYSTEM",
             textColor: "SYSTEM",
-            messages: { [mess_id] : {
-                mess_id: mess_id,
-                user_id: "SYSTEM",
-                user_nick: "SYSTEM",
-                user_color: "SYSTEM",
-                chat_id: Room,
-                type: "text",
-                key: "",
-                reply: "",
-                isEdited: false,
-                receivedBy: [],
-                seenBy: [],
-                message: "Se ha iniciado el chat privado seguro.",
-                date: new Date()
-            }}
+            messages: {
+                [mess_id]: {
+                    mess_id: mess_id,
+                    user_id: "SYSTEM",
+                    user_nick: "SYSTEM",
+                    user_color: "SYSTEM",
+                    chat_id: Room,
+                    type: "text",
+                    reply: "",
+                    isEdited: false,
+                    isBot: false,
+                    receivedBy: [],
+                    seenBy: [],
+                    inline: [],
+                    keyboard: [],
+                    message: "Se ha iniciado el chat privado seguro.",
+                    date: new Date()
+                }}
         };
         return ROOMS[Room]
     },
@@ -229,7 +232,7 @@ const DB = {
             pic: (!pic ? "": pic),
             type: "group",
             gType: (type ? type: "public"),
-            link : "/xgp" + chat_id + "/" + uid.alphanum(12),
+            link: "/xgp" + chat_id + "/" + uid.alphanum(12),
             name: (name ? name: "group-" + uid.alphanum(5)),
             desc: (desc ? desc: "El admin es muy vago como para poner una descripción"),
             bgColor: "SYSTEM",
@@ -237,44 +240,45 @@ const DB = {
             owner: owner,
             admins: [],
             members: mem,
-            banList : [],
+            banList: [],
             bots: [],
             pinned: [],
-            messages: { [mess_id] : {
-                mess_id: mess_id,
-                user_id: "SYSTEM",
-                user_nick: "SYSTEM",
-                user_color: "SYSTEM",
-                chat_id: id,
-                type: "text",
-                key: "",
-                reply: "",
-                isEdited: false,
-                receivedBy: [],
-                seenBy: [],
-                message: "Se ha creado la sala \"" + this.name + "\"",
-                inline: [],
-                keyboard: [],
-                date: new Date()
-            }}
+            messages: {
+                [mess_id]: {
+                    mess_id: mess_id,
+                    user_id: "SYSTEM",
+                    user_nick: "SYSTEM",
+                    user_color: "SYSTEM",
+                    chat_id: id,
+                    type: "text",
+                    reply: "",
+                    isEdited: false,
+                    isBot: false,
+                    receivedBy: [],
+                    seenBy: [],
+                    message: "Se ha creado la sala \"" + this.name + "\"",
+                    inline: [],
+                    keyboard: [],
+                    date: new Date()
+                }}
         };
 
         return true;
     },
-    
-    findRoomByLink : function (link){
-       let chat_id = link.split("/")[1];
-        if(!chat_id) return null;
-        chat_id = chat_id.replace("xgp" , "");
-        if(!ROOMS[chat_id]) return null;
+
+    findRoomByLink: function (link) {
+        let chat_id = link.split("/")[1];
+        if (!chat_id) return null;
+        chat_id = chat_id.replace("xgp", "");
+        if (!ROOMS[chat_id]) return null;
         else return chat_id;
     },
-    
-    joinRoomByLink : function (id , link){
+
+    joinRoomByLink: function (id , link) {
         const chat_id = this.findRoomByLink(link);
-        if(!chat_id) return null;
-        if(ROOMS[chat_id].banList.includes(id)) return null;
-        if(ROOMS[chat_id].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
+        if (!chat_id) return null;
+        if (ROOMS[chat_id].banList.includes(id)) return null;
+        if (ROOMS[chat_id].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
         ROOMS[chat_id].members.push(id);
         return true;
     },
@@ -303,44 +307,68 @@ const DB = {
         if (r && r.messages) {
             const keys = Object.keys(r.messages);
             const tol = config.ROOMS_CONFIG.chats_mess_tol;
-            const length = (keys.length - tol < 0 ? 0 : keys.length - tol);
-            const aKeys = keys.splice(length , keys.length);
-            if(!aKeys.includes(mess_id)) found = true;
-            for(let x = length ; x < keys.length ; x++){
-                if(found) mess[keys[x]] = r.messages[keys[x]];
-                if(keys[x] == mess_id) found = true;
+            const length = (keys.length - tol < 0 ? 0: keys.length - tol);
+            const aKeys = keys.splice(length, keys.length);
+            if (!aKeys.includes(mess_id)) found = true;
+            for (let x = length; x < keys.length; x++) {
+                if (found) mess[keys[x]] = r.messages[keys[x]];
+                if (keys[x] == mess_id) found = true;
             }
             return mess;
         } else return null;
     },
-    
-    getNewMess : function (id){
+
+    getNewMess: function (id) {
         const user = this.findUserById(id);
-        if(user) {
+        if (user) {
             const rooms = user.rooms;
             let allMess = {};
-            for(let r of rooms){
-                const mess = this.getRoomMessFrom(r.id , r.lastMess);
-                if(mess) allMess[r.id] = mess;
+            for (let r of rooms) {
+                const mess = this.getRoomMessFrom(r.id, r.lastMess);
+                if (mess) allMess[r.id] = mess;
             }
             return allMess;
-        }else return null;
+        } else return null;
     },
-    
-    editTextMess : function (id , chat_id , mess_id , newMess){
-        if(!id || !chat_id || !mess_id || !newMess) return null;
-        if(!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
+
+    addMess: function (id , chat_id , mess_id , type , message , reply) {
+        const user = this.findUserById(id);
+        if(!ROOMS[chat_id]) return null;
+        const nmess = {
+            mess_id: mess_id,
+            user_id: id,
+            user_nick: user.nick,
+            user_color: user.color,
+            chat_id: id,
+            type: type,
+            reply: (reply ? reply: ""),
+            isEdited: false,
+            isBot: false,
+            receivedBy: [],
+            seenBy: [],
+            message: message,
+            inline: [],
+            keyboard: [],
+            date: new Date()
+        };
+        ROOMS[chat_id].messages[mess_id] = nmess;
+        return nmess;
+    },
+
+    editTextMess: function (id , chat_id , mess_id , newMess) {
+        if (!id || !chat_id || !mess_id || !newMess) return null;
+        if (!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
         const mess = ROOMS[chat_id].messages[mess_id];
-        if(mess.user_id != id) return null;
-        if(mess.message == newMess) return null;
+        if (mess.user_id != id) return null;
+        if (mess.message == newMess) return null;
         mess.message = newMess;
         ROOMS[chat_id].messages[mess_id] = mess;
         return mess;
     },
-    
-    delMess : function (id , chat_id , mess_id){
-        const ret = this.editTextMess(id , chat_id , mess_id , "El mensaje ha sido eliminado.");
-        if(ret) return ret;
+
+    delMess: function (id , chat_id , mess_id) {
+        const ret = this.editTextMess(id, chat_id, mess_id, "El mensaje ha sido eliminado.");
+        if (ret) return ret;
         else return null;
     }
 };
