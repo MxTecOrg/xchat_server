@@ -274,7 +274,9 @@ const DB = {
         const chat_id = this.findRoomByLink(link);
         if(!chat_id) return null;
         if(ROOMS[chat_id].banList.includes(id)) return null;
-        if()
+        if(ROOMS[chat_id].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
+        ROOMS[chat_id].members.push(id);
+        return true;
     },
 
     getRoom: function(id) {
@@ -300,9 +302,10 @@ const DB = {
         let found = false;
         if (r && r.messages) {
             const keys = Object.keys(r.messages);
-            const tol = 100;
+            const tol = config.ROOMS_CONFIG.chats_mess_tol;
             const length = (keys.length - tol < 0 ? 0 : keys.length - tol);
-            if(!keys.includes(mess_id)) found = true;
+            const aKeys = keys.splice(length , keys.length);
+            if(!aKeys.includes(mess_id)) found = true;
             for(let x = length ; x < keys.length ; x++){
                 if(found) mess[keys[x]] = r.messages[keys[x]];
                 if(keys[x] == mess_id) found = true;
