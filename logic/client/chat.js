@@ -47,10 +47,7 @@ const chat = async (io , socket , id) => {
         const chat_id = uid.num(12);
         
         const room = await DB.createRoom(chat_id , id , data.name , data.desc , data.pic , data.members , data.type);
-        if(!room) return socket.emit("toast" , {
-            status : false,
-            data : "CANNOT_CREATE_ROOM"
-        });
+        if(!room) return socket.emit("toast" , "CANNOT_CREATE_ROOM");
         
         for(let m of room.members){
             if(io.sockets[m]) {
@@ -67,6 +64,36 @@ const chat = async (io , socket , id) => {
         if(!room) return;
         
         io.of("/clients").to(room.chat_id).emit("new-pv" , room);
+    });
+    
+    socket.on("find-room-from-link" , async (link) => {
+        const chat_id = await DB.findRoomByLink(link);
+        if(!chat_id) return socket.emit("bottomsheet" , "NOT_FOUND");
+        const room = await DB.getRoom(chat_id);
+        if(!room) return socket.emit("bottomsheet" , {
+            status : false,
+            data : "NOT_FOUND"
+        });
+            
+        socket.emit("bottomsheet" , {
+            status : true,
+            data : {
+                chat_id : chat_id,
+                name : room.name,
+                desc : room.desc,
+                pic : room.pic,
+                owner : await DB.findUserbyId(room.owner),
+                members : room.members.length,
+                bgColor: room.bgColor ,
+                textColor: room.textColor
+            }
+        })
+    });
+    
+    socket.on("join-room" , async (data) => {
+        const room = await DB.joinRoom(id , data.id);
+        if(!room.status) return socket.emit("bottomsheet" , room);
+        socket.emit("new-room" , room);
     });
     
     socket.on("edit-mess" , async (data) => {
