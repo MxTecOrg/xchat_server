@@ -261,7 +261,9 @@ const DB = {
                     inline: [],
                     keyboard: [],
                     date: new Date()
-                }}
+                }
+            },
+            boosted : 1
         };
 
         for (let m of ROOMS[chat_id].members) {
