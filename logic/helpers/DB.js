@@ -275,7 +275,7 @@ const DB = {
         return ROOMS[chat_id];
     },
 
-    findRoomByLink: function (link) {
+    findRoomByLink: async function (link) {
         let chat_id = link.split("/")[1];
         if (!chat_id) return null;
         chat_id = chat_id.replace("xgp", "");
@@ -310,8 +310,8 @@ const DB = {
     },
 
 
-    joinRoomByLink: function (id , link) {
-        const chat_id = this.findRoomByLink(link);
+    joinRoomByLink: async function (id , link) {
+        const chat_id = await this.findRoomByLink(link);
         if (!chat_id) return null;
         if (ROOMS[chat_id].banList.includes(id)) return null;
         if (ROOMS[chat_id].members.includes(id)) return null;
@@ -320,25 +320,25 @@ const DB = {
         return true;
     },
 
-    getRoom: function(id) {
-        if (ROOMS[id]) return ROOMS[id];
+    getRoom: async function(id) {
+        if (ROOMS[id]) return await ROOMS[id];
         else return null;
     },
 
-    getRoomMembs: function(id) {
+    getRoomMembs: async function(id) {
         const r = this.getRoom(id);
-        if (r && r.members) return r.members;
+        if (r && r.members) return await r.members;
         else return null;
     },
 
-    getRoomMess: function (id) {
-        const r = this.getRoom(id);
+    getRoomMess: async function (id) {
+        const r = await this.getRoom(id);
         if (r && r.messages) return r.messages;
         else return null;
     },
 
-    getRoomMessFrom: function (id , mess_id) {
-        const r = this.getRoom(id);
+    getRoomMessFrom: async function (id , mess_id) {
+        const r = await this.getRoom(id);
         let mess = {};
         let found = false;
         if (r && r.messages) {
