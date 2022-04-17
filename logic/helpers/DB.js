@@ -193,7 +193,6 @@ const DB = {
         ROOMS[Room] = {
             chat_id: Room,
             type: "private",
-            secure: uid.alphanum(32),
             pinned: [],
             bgColor: "SYSTEM",
             textColor: "SYSTEM",
@@ -214,7 +213,9 @@ const DB = {
                     keyboard: [],
                     message: "Se ha iniciado el chat privado seguro.",
                     date: new Date()
-                }}
+                }
+            },
+            members : [user , user2]
         };
         return ROOMS[Room];
     },
