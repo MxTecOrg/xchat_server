@@ -259,7 +259,7 @@ const DB = {
             }}
         };
 
-        return ROOMS[id].messages;
+        return true;
     },
     
     findRoomByLink : function (link){
