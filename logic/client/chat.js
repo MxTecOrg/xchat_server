@@ -61,6 +61,18 @@ const chat = async (io , socket , id) => {
         io.of("/client").to(chat_id).emit("new-room" , room);
     });
     
+    socket.on("start-pv" , async (data) => {
+        if(!data.user_id) return;
+        const room = await DB.createPrivateRoom(id , user_id);
+        if(!room) return;
+        
+        io.of("/clients").to(room.chat_id).emit("new-pv" , room);
+    });
+    
+    socket.on("edit-mess" , async (data) => {
+        
+    });
+    
 };
 
 module.exports = chat;
