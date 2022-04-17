@@ -11,7 +11,6 @@ io.of("/client").on("connection", (socket) => {
     if (!id) return socket.disconnect();
 
     if (!DB.findUserById(id)) return socket.disconnect();
-
     io.sockets[id] = socket;
     DB.setUserValue(id, "isOnline", true);
 
@@ -19,7 +18,7 @@ io.of("/client").on("connection", (socket) => {
 
     socket.on("disconnect", (data) => {
         DB.setUserValue(id, "isOnline", false);
-        delete io.socket[id];
+        delete io.sockets[id];
     });
 });
 
