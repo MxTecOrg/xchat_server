@@ -184,13 +184,13 @@ const DB = {
         delete TOKEN_PAIRS[token];
     },
 
-    createPrivateRoom : function (user , user2) {
+    createPrivateRoom : async function (user , user2) {
         if (!USERS[user2] || USERS[user2].banList.includes(user)) return false;
         let Room = DB.getRoom(user + "-" + user2) || DB.getRoom(user2 + "-" + user);
         if (Room) return false;
         const mess_id = uid.num(8);
         Room = user + "-" + user2;
-        ROOMS[Room] = {
+        ROOMS[Room] = await {
             chat_id: Room,
             type: "private",
             pinned: [],
