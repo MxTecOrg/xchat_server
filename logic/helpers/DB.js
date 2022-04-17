@@ -285,12 +285,12 @@ const DB = {
         else return chat_id;
     },
 
-    joinRoom: function (id , room) {
+    joinRoom: async function (id , room) {
         if (!ROOMS[room]) return null;
         if (ROOMS[chat_id].members.includes(id)) return null;
         if (ROOMS[room].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
-        ROOMS[room].members.push(id);
-        const Mess = Object.keys(ROOMS[room].messages);
+        await ROOMS[room].members.push(id);
+        const Mess = await Object.keys(ROOMS[room].messages);
         const lastMess = Mess[Mess.length - 1];
         USERS[id].rooms.push({
             id: room, lastMess: lastMess
