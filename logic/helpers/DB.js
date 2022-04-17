@@ -286,16 +286,30 @@ const DB = {
     },
 
     joinRoom: async function (id , room) {
-        if (!ROOMS[room]) return null;
-        if (ROOMS[chat_id].members.includes(id)) return null;
-        if (ROOMS[room].members.length >= config.ROOMS_CONFIG.chats_mem) return null;
+        if (!ROOMS[room]) return {
+            status : false,
+            data : "NOT_FOUND"
+        };
+        
+        if (ROOMS[chat_id].members.includes(id)) return {
+            status : false,
+            data : "ALREADY_JOINED"
+        };
+        
+        if (ROOMS[room].members.length >= config.ROOMS_CONFIG.chats_mem) return {
+            status : false,
+            data: "MAX_MEMB"
+        };
         await ROOMS[room].members.push(id);
         const Mess = await Object.keys(ROOMS[room].messages);
         const lastMess = Mess[Mess.length - 1];
         USERS[id].rooms.push({
             id: room, lastMess: lastMess
         });
-        return ROOMS[room];
+        return { 
+            status : true,
+            data : ROOMS[room]
+        }
 
     },
 
