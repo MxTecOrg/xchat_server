@@ -9,7 +9,7 @@ const bcrypt = require("bcryptjs");
 * @param res {}
 */
 
-const login = async (req, res) {
+const login = async (req, res) => {
     if (!req.body) return res.json({status : false , data : "NO_DATA"});
     let username,
     password;
