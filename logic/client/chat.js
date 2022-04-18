@@ -59,11 +59,15 @@ const chat = async (io , socket , id) => {
     });
     
     socket.on("start-pv" , async (data) => {
-        if(!data.user_id) return;
-        const room = await DB.createPrivateRoom(id , user_id);
-        if(!room) return;
-        
-        io.of("/clients").to(room.chat_id).emit("new-pv" , room);
+        if(!data.user_id) return socket.emit("toast" , {
+            status : false,
+            data : "DATA_ERROR"
+        });
+        const room = await DB.createPrivateRoom(id , data.user_id);
+        if(!room.status) return socket.emit("toast" , room);
+        socket.join(room.chat_id);
+        if(io.sockets[data.user_id]) io.sockets[data.user_id].join(room.data.chat_id);
+        io.of("/clients").to(room.data.chat_id).emit("new-pv" , room.data);
     });
     
     socket.on("find-room-from-link" , async (link) => {
@@ -93,7 +97,16 @@ const chat = async (io , socket , id) => {
     socket.on("join-room" , async (data) => {
         const room = await DB.joinRoom(id , data.id);
         if(!room.status) return socket.emit("bottomsheet" , room);
+        await socket.join(room.id)
         socket.emit("new-room" , room);
+        
+        const mess_id = uid.num(8);
+        
+        const mess = await DB.newMess("SYSTEM" , room.id , mess_id , "text" ,  user.name + " se ah unido al chat.");
+        
+        socket.to(room.chat_id).emit("joined" , id);
+        
+        io.of("/client").to(room.id).emit("message", mess);
     });
     
     socket.on("edit-mess" , async (data) => {
