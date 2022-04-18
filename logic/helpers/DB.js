@@ -389,13 +389,13 @@ const DB = {
 
     newMess: function (id , chat_id , mess_id , type , message , reply) {
         const user = this.findUserById(id);
-        if (!ROOMS[chat_id]) return null;
+        if (!ROOMS[chat_id] && id != "SYSTEM") return null;
         const nmess = {
             mess_id: mess_id,
             user_id: id,
-            user_nick: user.nick,
-            user_color: user.color,
-            chat_id: id,
+            user_nick: (user.nick ? user.nick : "SYSTEM"),
+            user_color: (user.color ? user.color : "SYSTEM"),
+            chat_id: chat_id,
             type: type,
             reply: (reply ? reply: ""),
             isEdited: false,
