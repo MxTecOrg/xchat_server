@@ -19,6 +19,13 @@ const verify = async (req , res) => {
     }
   
     const user = await DB.findUserByMail(req.body.email);
+    if(!user){
+        return res.json({
+            status : false,
+            data : "USER_NOT_FOUND"
+        });
+    }
+    
     DB.setUserValue(user.id , "verified" , true);
   
     res.json({
