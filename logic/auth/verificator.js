@@ -12,12 +12,10 @@ const transport = nodemailer.createTransport({
     }
 });
 
-const verificator = async (req, res) => {
-    let email;
+const verificator = async (email) => {
 
     try {
-        const body = req.email;
-        email = (body.email ? body.email: undefined);
+        if(!email) return;
         let _token = uid.num(5);
         DB.addTokenPair(email , _token)
         const message = {
@@ -36,10 +34,7 @@ const verificator = async (req, res) => {
         await transport.sendMail(message, function(err, info) {
             if (err) {} else {}
         });
-        res.json({
-            status : true,
-            data : "MTOKEN_SENDED"
-        });
+        return true;
     }catch(err) {}
 }
 
