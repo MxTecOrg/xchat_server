@@ -185,7 +185,12 @@ const DB = {
     },
 
     createPrivateRoom : async function (user , user2) {
-        if (!USERS[user2] || USERS[user2].banList.includes(user)) return {
+        if (!USERS[user2]) return {
+            status : false,
+            data : "BANNED_USER"
+        };
+        
+        if (USERS[user2].banList.includes(user)) return {
             status : false,
             data : "BANNED_USER"
         };
