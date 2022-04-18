@@ -9,12 +9,12 @@ const bcrypt = require("bcryptjs");
 * @param res {}
 */
 
-function login (req, res) {
+const login = async (req, res) {
     if (!req.body) return res.json({status : false , data : "NO_DATA"});
     let username,
     password;
     try {
-      const body = req.body;
+        const body = req.body;
         username = body.username;
         password = body.password;
     } catch (err) {
@@ -25,12 +25,19 @@ function login (req, res) {
         });
     }
 
-    const account = DB.findUserByName(username);
+    const account = await DB.findUserByName(username);
 
     if (!account) {
         return res.json({
             status: false,
             data: "WRONG_USER"
+        });
+    }
+    
+    if(!account.verified){
+        return res.json({
+            status : false,
+            data : "ACC_NOT_VERIFIED"
         });
     }
 
