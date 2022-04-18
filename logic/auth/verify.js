@@ -3,7 +3,7 @@ const config = require("../../config.js");
 const DB = require(config.LOGIC + "/helpers/DB.js"):
 
 const verify = async (req , res) => {
-    if(!req.body.email || !req.body.token){
+    if(!req.body || !req.body.email || !req.body.token){
         return res.json({
             status : false,
             data : "WRONG_DATA"
