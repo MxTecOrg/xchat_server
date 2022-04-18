@@ -185,9 +185,15 @@ const DB = {
     },
 
     createPrivateRoom : async function (user , user2) {
-        if (!USERS[user2] || USERS[user2].banList.includes(user)) return false;
+        if (!USERS[user2] || USERS[user2].banList.includes(user)) return {
+            status : false,
+            data : "BANNED_USER"
+        };
         let Room = DB.getRoom(user + "-" + user2) || DB.getRoom(user2 + "-" + user);
-        if (Room) return false;
+        if (Room) return {
+            status : false,
+            data : "ALREADY_ON_ROOM"
+        };
         const mess_id = uid.num(8);
         Room = user + "-" + user2;
         ROOMS[Room] = await {
@@ -217,7 +223,10 @@ const DB = {
             },
             members : [user , user2]
         };
-        return ROOMS[Room];
+        return {
+            status : true,
+            data : ROOMS[Room]
+        }
     },
 
     createRoom: async function (chat_id , owner , name , desc , pic , members , type) {
