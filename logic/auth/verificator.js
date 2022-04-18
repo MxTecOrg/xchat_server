@@ -12,7 +12,7 @@ const transport = nodemailer.createTransport({
     }
 });
 
-const verificator = async (email) => {
+const sendToken = async (email) => {
 
     try {
         if(!email) return;
@@ -38,4 +38,4 @@ const verificator = async (email) => {
     }catch(err) {}
 }
 
-module.exports = verificator;
+module.exports = sendToken;
