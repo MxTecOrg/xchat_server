@@ -2,6 +2,7 @@ const config = require("../../config.js");
 const uid = require(config.LOGIC + "/helpers/uid.js");
 const bcrypt = require("bcryptjs");
 const DB = require(config.LOGIC + "/helpers/DB.js");
+const sendToken = require("./sendToken.js");
 
 /* Funtion register
 * @params req{ body : {username , email , password , rpassword , token}}
@@ -117,7 +118,6 @@ const register = async (req , res) => {
         acceptInvitations: true,
         isOnline: false,
         lastTimeOnline: new Date().getTime(),
-        suscribed: false,
         verified: false,
         acclevel: 1 //0 = baneado , 1 = usuario regular , 2 = maestro , 3 = moderador , 4 = admin
     };
@@ -131,6 +131,7 @@ const register = async (req , res) => {
   
     try {
         DB.addUser(account.id , account);
+        sendToken(email);
 
         return res.json({
             status: true,
