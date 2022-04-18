@@ -1,6 +1,6 @@
 /**/
 const config = require("../../config.js");
-const DB = require(config.LOGIC + "/helpers/DB.js"):
+const DB = require(config.LOGIC + "/helpers/DB.js");
 
 const verify = async (req , res) => {
     if(!req.body || !req.body.email || !req.body.token){
