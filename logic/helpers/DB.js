@@ -290,6 +290,19 @@ const DB = {
 
         return ROOMS[chat_id];
     },
+    
+    setReceived: async function (id , chat_id , mess_id) {
+        if(!ROOMS[chat_id]) return {
+            status : false,
+            data : "ROOM_NOT_FOUND"
+        };
+        if(!ROOMS[chat_id][mess_id]) return {
+            status : false,
+            data : "MESS_NOT_FOUND"
+        };
+        
+        
+    },
 
     findRoomByLink: async function (link) {
         let chat_id = link.split("/")[1];
