@@ -362,10 +362,9 @@ const DB = {
             const tol = config.ROOMS_CONFIG.chats_mess_tol;
             const length = (keys.length - tol < 0 ? 0: keys.length - tol);
             const aKeys = keys.splice(length, keys.length);
-            if (!aKeys.includes(mess_id)) found = true;
+            if (aKeys.includes(mess_id)) length = aKeys.indexOf(mess_id);
             for (let x = length; x < keys.length; x++) {
-                if (found) mess[keys[x]] = r.messages[keys[x]];
-                if (keys[x] == mess_id) found = true;
+                mess[keys[x]] = r.messages[keys[x]];
             }
             return mess;
         } else return null;
