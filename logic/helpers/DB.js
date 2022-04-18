@@ -387,10 +387,10 @@ const DB = {
         } else return null;
     },
 
-    newMess: function (id , chat_id , mess_id , type , message , reply) {
-        const user = this.findUserById(id);
+    newMess: async function (id , chat_id , mess_id , type , message , reply) {
+        const user = await this.findUserById(id);
         if (!ROOMS[chat_id] && id != "SYSTEM") return null;
-        const nmess = {
+        const nmess = await {
             mess_id: mess_id,
             user_id: id,
             user_nick: (user.nick ? user.nick : "SYSTEM"),
