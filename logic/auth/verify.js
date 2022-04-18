@@ -10,7 +10,7 @@ const verify = async (req , res) => {
         });
     }
   
-    const pair = await DB.getPairToken(req.body.email);
+    const pair = await DB.getTokenPair(req.body.email);
     if(pair != req.body.token){
         return res.json({
             status : false,
