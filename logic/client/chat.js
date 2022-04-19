@@ -4,7 +4,7 @@ const uid = require(config.LOGIC + "/helpers/uid.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 
 const chat = async (io , socket , id) => {
-    const user = await Object.assign( {} , DB.findUserById(id));
+    const user = await JSON.parse(JSON.stringify( DB.findUserById(id)));
     delete user.password;
     delete user.rooms;
     await socket.emit("load-user" , user)
@@ -14,7 +14,7 @@ const chat = async (io , socket , id) => {
         await socket.join(r);
         const rm = await DB.getRoom(r);
         if(rm){
-            const nr = await Object.assign({} , rm);
+            const nr = await JSON.parse(JSON.stringify( rm));
             delete nr.messages;
             if(nr.owner != id && !nr.admins.includes(id)) {
                 delete nr.link;
