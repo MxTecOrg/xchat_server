@@ -33,7 +33,7 @@ const chat = async (io , socket , id) => {
     });
     
     socket.on("message" , async (data) => {
-        if(!data.arr_id || !data.chat_id || !data.type || !data.message) return;
+        if(!data.chat_id || !data.type || !data.message) return;
         if(data.type == "text" && data.message == "") return;
         const mess_id = uid.num(8);
         
@@ -41,7 +41,6 @@ const chat = async (io , socket , id) => {
         if(mess) {
             await socket.to(data.chat_id).emit("message" , mess);
             socket.emit("mess_arr" , {
-                arr_id : arr_id,
                 chat_id : data.chat_id,
                 mess_id : mess_id
             })
