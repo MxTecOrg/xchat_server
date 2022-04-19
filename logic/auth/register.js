@@ -30,27 +30,6 @@ const register = async (req , res) => {
             data: "DATA_ERROR"
         });
     }
-    const pair = DB.getTokenPair(email);
-    if(!token){
-        return res.json({
-            status : false,
-            data : "EMPTY_TOKEN"
-        });
-    }
-    
-    else if(!pair){
-        return res.json({
-            status : false,
-            data : "TOKEN_TIMEOUT"
-        });
-    }
-    
-    else if(pair != token){
-        return res.json({
-            status: false,
-            data: "WRONG_TOKEN"
-        });
-    }
   
     else if (!username) {
         return res.json({
@@ -101,7 +80,7 @@ const register = async (req , res) => {
     if (password != rpassword) {
         return res.json({
             status: false,
-            data: "PASS_MATCH"
+            data: "PASS_NOT_MATCH"
         });
     }
   
