@@ -283,26 +283,12 @@ const DB = {
         for (let m of ROOMS[chat_id].members) {
             const Mess = Object.keys(ROOMS[chat_id].messages);
             const lastMess = Mess[Mess.length - 1];
-            USERS[m].rooms.push({
-                id: chat_id, lastMess: lastMess
-            });
+            USERS[m].rooms.push(chat_id);
         }
 
         return ROOMS[chat_id];
     },
     
-    setReceived: async function (id , chat_id , mess_id) {
-        if(!ROOMS[chat_id]) return {
-            status : false,
-            data : "ROOM_NOT_FOUND"
-        };
-        if(!ROOMS[chat_id][mess_id]) return {
-            status : false,
-            data : "MESS_NOT_FOUND"
-        };
-        
-        
-    },
 
     findRoomByLink: async function (link) {
         let chat_id = link.split("/")[1];
@@ -330,26 +316,12 @@ const DB = {
         await ROOMS[room].members.push(id);
         const Mess = await Object.keys(ROOMS[room].messages);
         const lastMess = Mess[Mess.length - 1];
-        USERS[id].rooms.push({
-            id: room, lastMess: lastMess
-        });
+        USERS[id].rooms.push(room);
         return { 
             status : true,
             data : ROOMS[room]
         }
 
-    },
-
-    setLassMess: async function (id, chat_id) {
-        if (!ROOMS[chat_id]) return null;
-        const Mess = Object.keys(ROOMS[room].messages);
-        const lastMess = Mess[Mess.length - 1];
-        for (let r in USERS[id].rooms) {
-            if (USERS[id].rooms[r].id == chat_id) {
-                USERS[id].rooms[r].lastMess = lastMess;
-                return;
-            }
-        }
     },
 
 
@@ -394,22 +366,6 @@ const DB = {
                 mess[keys[x]] = r.messages[keys[x]];
             }
             return mess;
-        } else return null;
-    },
-
-    getNewMess: async function (id) {
-        const user = this.findUserById(id);
-        if (user) {
-            const rooms = user.rooms;
-            let allMess = {};
-            for (let r of rooms) {
-                const mess = this.getRoomMessFrom(r.id, r.lastMess);
-                if (mess) {
-                    allMess[r.id] = mess;
-                    await DB.setLastMess(id, r.id);
-                }
-            }
-            return allMess;
         } else return null;
     },
 
