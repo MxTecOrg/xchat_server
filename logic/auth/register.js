@@ -31,7 +31,7 @@ const register = async (req , res) => {
         });
     }
   
-    else if (!username) {
+    if (!username) {
         return res.json({
             status: false,
             data: "EMPTY_USER"
