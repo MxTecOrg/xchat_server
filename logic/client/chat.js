@@ -7,25 +7,30 @@ const chat = async (io , socket , id) => {
     const user = await JSON.parse(JSON.stringify( DB.findUserById(id)));
     delete user.password;
     delete user.rooms;
-    await socket.emit("load-user" , user)
+    await socket.emit("load-user" , user);
     const rooms = user.rooms;
-    let Rooms = {};
-    for(let r of rooms){
-        await socket.join(r);
-        const rm = await DB.getRoom(r);
-        if(rm){
-            const nr = await JSON.parse(JSON.stringify( rm));
-            delete nr.messages;
-            if(nr.owner != id && !nr.admins.includes(id)) {
-                delete nr.link;
-                delete nr.banList;
+    
+    socket.on("get-room-data" , async (data) => {
+        const room = await DB.getRoom(data.room);
+        if(room){
+            const rm = JSON.parse(JSON.stringify(room));
+            delete rm.messages;
+            if(rm.owner != id && !rm.admins.includes(id)) {
+                delete rm.link;
+                delete rm.banList;
             }
-            Rooms[r] = nr;
+            socket.emit("get-room-data" , rm);
+            await socket.join(data.room);
         }
-    }
-    await socket.emit("load-rooms" , Rooms);
-    const nm = await DB.getNewMess(id);
-    await socket.emit("load-chats" , (nm ? nm : {}));
+    });
+    
+    socket.on("get-room-mess" , async (data) => {
+        const mess = await DB.getRoomMessFrom(data.chat_id , data.lastMess);
+        if(mess) socket.emit("get-room-mess" , {
+            chat_id : data.chat_id,
+            data : mess
+        });
+    });
     
     socket.on("message" , async (data) => {
         if(!data.arr_id || !data.chat_id || !data.type || !data.message) return;
