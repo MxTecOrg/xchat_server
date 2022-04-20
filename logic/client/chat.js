@@ -40,7 +40,7 @@ const chat = async (io , socket , id) => {
         const mess = await DB.newMess(id , data.chat_id , mess_id , data.type , data.message , data.reply);
         if(mess) {
             await socket.to(data.chat_id).emit("message" , mess);
-            socket.emit("mess_arr" , {
+            socket.emit("arriv-mess" , {
                 arriv_id : arriv_id,
                 chat_id : data.chat_id,
                 mess_id : mess_id
