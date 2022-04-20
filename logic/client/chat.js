@@ -115,7 +115,8 @@ const chat = async (io , socket , id) => {
         
         const mess = await DB.newMess("SYSTEM" , room.id , mess_id , "text" ,  user.name + " se ah unido al chat.");
         
-        socket.to(room.chat_id).emit("joined" , id);
+        socket.to(room.chat_id).emit("joined" ,
+        { user_id : id , room : chat_id });
         
         io.of("/client").to(room.id).emit("message", mess);
     });
