@@ -108,9 +108,9 @@ const chat = async (io , socket , id) => {
     socket.on("join-room" , async (data) => {
         const room = await DB.joinRoom(id , data.id);
         if(!room.status) return socket.emit("bottomsheet" , room);
-        await socket.join(room.id)
-        socket.emit("new-room" , room);
         
+        socket.emit("new-room" , room);
+        await socket.join(room.id);
         const mess_id = uid.num(8);
         
         const mess = await DB.newMess("SYSTEM" , room.id , mess_id , "text" ,  user.name + " se ah unido al chat.");
