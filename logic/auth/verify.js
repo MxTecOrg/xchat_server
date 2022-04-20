@@ -33,3 +33,5 @@ const verify = async (req , res) => {
         data : "VERIFIED"
     });
 };
+
+module.exports = verify;
