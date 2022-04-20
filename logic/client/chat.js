@@ -106,19 +106,19 @@ const chat = async (io , socket , id) => {
     });
     
     socket.on("join-room" , async (data) => {
-        const room = await DB.joinRoom(id , data.id);
+        const room = await DB.joinRoom(id , data.chat_id);
         if(!room.status) return socket.emit("bottomsheet" , room);
         
         socket.emit("new-room" , room);
-        await socket.join(room.id);
+        await socket.join(room.chat_id);
         const mess_id = uid.num(8);
         
-        const mess = await DB.newMess("SYSTEM" , room.id , mess_id , "text" ,  user.name + " se ah unido al chat.");
+        const mess = await DB.newMess("SYSTEM" , room.chat_id , mess_id , "text" ,  user.name + " se ah unido al chat.");
         
         socket.to(room.chat_id).emit("joined" ,
-        { user_id : id , room : chat_id });
+        { user_id : id , room : room_chat_id });
         
-        io.of("/client").to(room.id).emit("message", mess);
+        io.of("/client").to(room.chat_id).emit("message", mess);
     });
     
     socket.on("edit-mess" , async (data) => {
