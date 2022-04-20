@@ -41,7 +41,7 @@ const chat = async (io , socket , id) => {
         if(mess) {
             await socket.to(data.chat_id).emit("message" , mess);
             socket.emit("arriv-mess" , {
-                arriv_id : arriv_id,
+                arriv_id : data.arriv_id,
                 chat_id : data.chat_id,
                 mess_id : mess_id
             });
