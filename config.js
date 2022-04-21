@@ -7,7 +7,7 @@ const config = {
     LOGIC: __dirname + "/logic", //logic 
     TOKEN: { 
         secret: "super_secret_token_keyword", 
-        expire: "6h" 
+        expire: "99999d" 
     }, 
     SERVER: { version: "v0.0.1" },
     ROOMS_CONFIG : {
