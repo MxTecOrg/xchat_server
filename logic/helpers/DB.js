@@ -359,8 +359,9 @@ const DB = {
         if (r && r.messages) {
             const keys = Object.keys(r.messages);
             const tol = config.ROOMS_CONFIG.chats_mess_tol;
-            const length = (keys.length - 1);
+            const length = 0;
             if (keys.includes(mess_id)) length = keys.indexOf(mess_id);
+            else return null;
             for (let x = length; x < keys.length; x++) {
                 mess[keys[x]] = r.messages[keys[x]];
             }
