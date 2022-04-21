@@ -10,7 +10,7 @@ var USERS = {}, ROOMS = {}, BOTS = {}, CHANNELS = {}, TOKEN_PAIRS = {};
 
 const DB = {
     loadUsers: function () {
-        console.time("Users loaded in:")
+        console.time("Users loaded in:");
         const _users = fs.readdirSync(config.DB + "/users/");
         try {
             for (let u of _users) {
@@ -23,7 +23,7 @@ const DB = {
     },
 
     loadRooms: function () {
-        console.time("Rooms loaded in:")
+        console.time("Rooms loaded in:");
         const _rooms = fs.readdirSync(config.DB + "/rooms/");
         try {
             for (let u of _rooms) {
@@ -122,31 +122,24 @@ const DB = {
                 case "==":
                     if (USERS[u][key] == value) f.push(USERS[u]);
                     return f;
-                    break;
                 case "!=":
                     if (USERS[u][key] != value) f.push(USERS[u]);
                     return f;
-                    break;
                 case "<":
                     if (USERS[u][key] < value) f.push(USERS[u]);
                     return f;
-                    break;
                 case ">":
                     if (USERS[u][key] > value) f.push(USERS[u]);
                     return f;
-                    break;
                 case "<=":
                     if (USERS[u][key] <= value) f.push(USERS[u]);
                     return f;
-                    break;
                 case ">=":
                     if (USERS[u][key] >= value) f.push(USERS[u]);
                     return f;
-                    break;
                 default:
                     f.push(USERS[u]);
                     return f;
-                    break;
             }
         }
         return f;
@@ -170,6 +163,13 @@ const DB = {
             USERS[id][key] += value;
             return true;
         } else return null;
+    },
+    
+    addContact : function (id , user){
+        if (USERS[users]){
+            USERS[id].contacts.push(user);
+            return true;
+        }else return null;
     },
 
     addTokenPair: function (token , _token) {
