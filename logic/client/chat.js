@@ -128,6 +128,7 @@ const chat = async (io , socket , id) => {
     socket.on("add-contact" , async (data) => {
         const user = (await DB.findUserbyId(data) || await DB.findUserByMail(data));
         if(!user) return socket.emit("toast" , "Usuario no encontrado.");
+        if(user.id == id) return socket.emit("toast" , "No puedes añadirte a tus contactos.");
         if(await DB.addContact(id , user.id)){
             return socket.emit("add-contact" , {
                 id : user.id,
