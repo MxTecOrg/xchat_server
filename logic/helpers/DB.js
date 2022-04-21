@@ -216,6 +216,7 @@ const DB = {
                     chat_id: Room,
                     type: "text",
                     reply: "",
+                    shared : false,
                     isEdited: false,
                     isBot: false,
                     receivedBy: [],
@@ -223,7 +224,7 @@ const DB = {
                     inline: [],
                     keyboard: [],
                     message: "Se ha iniciado el chat privado seguro.",
-                    date: new Date()
+                    date: new Date().getTime()
                 }
             },
             members : [user , user2]
@@ -267,6 +268,7 @@ const DB = {
                     chat_id: chat_id,
                     type: "text",
                     reply: "",
+                    shared : false,
                     isEdited: false,
                     isBot: false,
                     receivedBy: [],
@@ -380,6 +382,7 @@ const DB = {
             chat_id: chat_id,
             type: type,
             reply: (reply ? reply: ""),
+            shared: false,
             isEdited: false,
             isBot: false,
             receivedBy: [],
@@ -399,6 +402,7 @@ const DB = {
         if (mess.user_id != id && !del && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id)) return null;
         if (mess.message == newMess) return null;
         mess.message = newMess;
+        mess.isEdited = true;
         ROOMS[chat_id].messages[mess_id] = mess;
         return mess;
     },
