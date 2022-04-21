@@ -94,6 +94,8 @@ const register = async (req , res) => {
         desc : "Usando XChat :)",
         pic : "",
         rooms : [],
+        bots : [],
+        channels : [],
         banList : [],
         contacts : [],
         statuses : [],
