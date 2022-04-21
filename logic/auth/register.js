@@ -96,6 +96,7 @@ const register = async (req , res) => {
         rooms : [],
         banList : [],
         contacts : [],
+        statuses : [],
         acceptInvitations: true,
         isOnline: false,
         lastTimeOnline: new Date().getTime(),
