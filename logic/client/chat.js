@@ -134,7 +134,9 @@ const chat = async (io , socket , id) => {
                 email : user.email,
                 nick : user.nick,
                 pic : user.pic,
-                desc : user.desc
+                desc : user.desc,
+                color : user.color,
+                statuses : user.statuses
             });
         }
         socket.emit("toast" , "Usuario no encontrado.");
