@@ -359,13 +359,12 @@ const DB = {
         if (r && r.messages) {
             const keys = Object.keys(r.messages);
             const tol = config.ROOMS_CONFIG.chats_mess_tol;
-            const length = (keys.length - tol < 0 ? 0: keys.length - tol);
-            const aKeys = keys.splice(length, keys.length);
-            if (aKeys.includes(mess_id)) length = aKeys.indexOf(mess_id);
+            const length = (keys.length - 1);
+            if (keys.includes(mess_id)) length = keys.indexOf(mess_id);
             for (let x = length; x < keys.length; x++) {
                 mess[keys[x]] = r.messages[keys[x]];
             }
-            return mess;
+            return (Object.keys(mess) < 1 ? null : mess);
         } else return null;
     },
 
