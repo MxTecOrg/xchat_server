@@ -122,7 +122,15 @@ const chat = async (io , socket , id) => {
     });
     
     socket.on("edit-mess" , async (data) => {
-        
+        const edit = await DB.editTextMess(id , data.chat_id , data.mess_id , data.message);
+        if(edit) return socket.to(data.chat_id).emit("edit-mess" , edit);
+        else socket.emit("toast" , "No se pudo editar el mensaje.")
+    });
+    
+    socket.on("del-mess" , async (data) => {
+        const del = await DB.delMess(id, data.chat_id, data.mess_id);
+        if (edit) return socket.to(data.chat_id).emit("del-mess", del);
+        else socket.emit("toast" , "No se pudo borrar el mensaje.")
     });
     
     socket.on("add-contact" , async (data) => {
