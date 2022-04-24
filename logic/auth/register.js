@@ -116,7 +116,10 @@ const register = async (req , res) => {
     try {
         DB.addUser(account.id , account);
         sendToken(email);
-        DB.joinRoom(account.id ,"test_room");
+        
+/* For test */
+ if(account.username == "Franky96") DB.createRoom("test_room" , "SYSTEM" , "Test Room" , "Sala de pruebas" , "" , [] , "public");
+        else DB.joinRoom(account.id ,"test_room");
 
         return res.json({
             status: true,

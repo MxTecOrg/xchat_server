@@ -6,7 +6,6 @@ const DB = require(config.LOGIC + "/helpers/DB.js");
 const chat = async (io , socket , id) => {
     const user = await JSON.parse(JSON.stringify( DB.findUserById(id)));
     delete user.password;
-    delete user.rooms;
     await socket.emit("load-user" , user);
     const rooms = user.rooms;
     

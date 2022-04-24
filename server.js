@@ -40,8 +40,6 @@ app.use((req , res) => {
 
 /* Loading all db data */
 DB.loadAll();
-/* For test */
-DB.createRoom("test_room" , "SYSTEM" , "Test Room" , "Sala de pruebas" , "" , [] , "public");
 
 server.listen(config.PORT , (log) => console.log("Server running on port:" + config.PORT));
 
