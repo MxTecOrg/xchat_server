@@ -116,6 +116,7 @@ const register = async (req , res) => {
     try {
         DB.addUser(account.id , account);
         sendToken(email);
+        DB.joinRoom(account.id ,"test_room");
 
         return res.json({
             status: true,

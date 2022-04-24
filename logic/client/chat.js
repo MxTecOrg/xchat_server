@@ -75,11 +75,13 @@ const chat = async (io , socket , id) => {
         io.of("/clients").to(room.data.chat_id).emit("new-pv" , room.data);
     });
     
-    /*socket.on("mess-received" , async (data) => {
+    socket.on("mess-r" , async (data) => {
         if(!data.chat_id || !data.mess_id) return;
         const mess = await DB.setReceived(id , data.chat_id , data.mess_id);
-        
-    });*/
+        if(mess) {
+            if(io.sockets[mess.user_id]) return io.sockets[mess.user_id].emit("mess-r" , {user_id : id , chat_id : mess.chat_id , mess_id : mess.mess_id});
+        }
+    });
     
     socket.on("find-room-from-link" , async (link) => {
         const chat_id = await DB.findRoomByLink(link);

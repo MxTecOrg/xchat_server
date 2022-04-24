@@ -230,7 +230,7 @@ const DB = {
             members : [user , user2]
         };
         return {
-            status : true,
+            status : true, 
             data : ROOMS[Room]
         }
     },
