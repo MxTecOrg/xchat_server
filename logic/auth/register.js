@@ -96,13 +96,21 @@ const register = async (req , res) => {
         rooms : [],
         bots : [],
         channels : [],
+        own_rooms : [],
+        own_bots: [],
+        own_channels: [],
         banList : [],
         contacts : [],
         statuses : [],
+        xcoins: 0,
+        avatar: {
+        },
+        daily: 1,
         acceptInvitations: true,
         isOnline: false,
         lastTimeOnline: new Date().getTime(),
         verified: false,
+        vip : "basic",
         acclevel: 1 //0 = baneado , 1 = usuario regular , 2 = maestro , 3 = moderador , 4 = admin
     };
     

@@ -13,6 +13,7 @@ const io = require("socket.io")(server , {
     }
 });
 const router = require(config.LOGIC + "/router.js");
+const webcli = require(config.WEBCLI + "/router.js");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const DB = require(config.LOGIC + "/helpers/DB.js");
@@ -24,8 +25,14 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+app.use(express.static(__dirname + '/webclient/public'));
+
 /* Express router */
 app.use("/", router);
+
+/* Web Client Router */
+app.use("/webcli", webcli)
+
 // Wakeup route
 app.post("/wakeup", (req, res) => {
     res.json({

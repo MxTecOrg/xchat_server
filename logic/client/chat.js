@@ -136,8 +136,9 @@ const chat = async (io , socket , id) => {
     
     socket.on("add-contact" , async (data) => {
         const user = (await DB.findUserbyId(data) || await DB.findUserByMail(data));
-        if(!user) return socket.emit("toast" , "Usuario no encontrado.");
-        if(user.id == id) return socket.emit("toast" , "No puedes añadirte a tus contactos.");
+        if(!user) return socket.emit("toast" , "USER_NOT_FOUND");
+        if(user.id == id) return socket.emit("toast" , "CANNOT_SELF_ADD");
+        if((await DB.getUserValue(id , "contacts")).includes(user.id)) return socket.emit("toast" , "ALREADY_IN_CONTACTS");
         if(await DB.addContact(id , user.id)){
             return socket.emit("add-contact" , {
                 id : user.id,
@@ -149,7 +150,7 @@ const chat = async (io , socket , id) => {
                 statuses : user.statuses
             });
         }
-        socket.emit("toast" , "Usuario no encontrado.");
+        socket.emit("toast" , "USER_NOT_FOUND");
     });
     
 };
