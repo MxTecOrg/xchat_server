@@ -31,9 +31,9 @@ io.of("/client").on("connection", (socket) => {
     }
     
     if(io.sockets[id]) {
-        socket.emit("alert" , "OTHER_CONNECT");
-        socket.disconnect();
-        return;
+        io.sockets[id].emit("alert" , "OTHER_CONNECT");
+        io.sockets[id].disconnect();
+        delete io.sockets[id];
     }
     io.sockets[id] = socket;
     DB.setUserValue(id, "isOnline", true);
@@ -48,35 +48,35 @@ io.of("/client").on("connection", (socket) => {
 
 io.of("/bot").on("connection", async (socket) => {
     if (!socket.handshake.query) {
-        socket.emit("alert", "EMPTY_TOKEN");
+        socket.emit("error", "EMPTY_TOKEN");
         socket.disconnect();
         return;
     }
     const token = socket.handshake.query.token;
     if (!token) {
-        socket.emit("alert", "EMPTY_TOKEN")
+        socket.emit("error", "EMPTY_TOKEN")
         socket.disconnect();
         return;
     }
-    const _bot = await DB.getBotByToken(token);
+    const _bot = await DB.findBotByToken(token);
     if (!_bot) {
-        socket.emit("alert", "WRONG_TOKEN");
+        socket.emit("error", "WRONG_TOKEN");
         socket.disconnect();
         return;
     }
 
     if(io.sockets[_bot.id]) {
-        socket.emit("alert" , "OTHER_CONNECT");
-        socket.disconnect();
-        return;
+        io.sockets[_bot.id].emit("error", "OTHER_CONNECT");
+        io.sockets[_bot.id].disconnect();
+        delete io.sockets[_bot.id];
     }
     io.sockets[_bot.id] = socket;
-    DB.setBotValue(id, "isOnline", true);
+    DB.setBotValue(_bot.id, "isOnline", true);
 
     bot(io, socket, id);
 
     socket.on("disconnect", (data) => {
-        DB.setBotValue(id, "isOnline", false);
+        DB.setBotValue(_bot.id, "isOnline", false);
         delete io.sockets[_bot.id];
     });
 })

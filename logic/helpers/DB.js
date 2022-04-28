@@ -234,6 +234,7 @@ const DB = {
             chat_id: Room,
             type: "private",
             pinned: [],
+            bots: [],
             bgColor: "SYSTEM",
             textColor: "SYSTEM",
             messages: {
@@ -393,7 +394,7 @@ const DB = {
             const keys = Object.keys(r.messages);
             //const tol = config.ROOMS_CONFIG.chats_mess_tol;
             const length = 0;
-            if (keys.includes(mess_id)) length = keys.indexOf(mess_id);
+            if (r.messages[mess_id]) length = keys.indexOf(mess_id);
             else return null;
             for (let x = length; x < keys.length; x++) {
                 mess[keys[x]] = r.messages[keys[x]];
@@ -402,10 +403,10 @@ const DB = {
         } else return null;
     },
 
-    newMess: async function(id, chat_id, mess_id, type, message, reply) {
+    newMess: async function(id, chat_id, mess_id, type, message, reply , isBot , inline , keyboard) {
         const user = await this.findUserById(id);
         if (!ROOMS[chat_id] && id != "SYSTEM") return null;
-        const nmess = await {
+        const nmess = {
             mess_id: mess_id,
             user_id: id,
             user_nick: (user.nick ? user.nick : "SYSTEM"),
@@ -415,13 +416,13 @@ const DB = {
             reply: (reply ? reply : ""),
             shared: false,
             isEdited: false,
-            isBot: false,
+            isBot: (isBot ? true : false),
             receivedBy: [],
             seenBy: [],
             message: message,
-            inline: [],
-            keyboard: [],
-            date: new Date()
+            inline: (inline ? inline : []),
+            keyboard: (keyboard ? keyboard : []),
+            date: new Date().getTime()
         };
         ROOMS[chat_id].messages[mess_id] = nmess;
         return nmess;
@@ -456,20 +457,43 @@ const DB = {
         return null;
     },
 
+    findBotByToken: async function(token) {
+        for (let bot in BOTS) {
+            if (BOTS[bot].token == token) return BOTS[bot];
+        }
+        return null;
+    },
+
+    getBotValue: function(id, key) {
+        if (BOTS[id]) {
+            return BOTS[id][key];
+        } else return null;
+    },
+
+    setBotValue: function(id, key, value) {
+        if (BOTS[id]) {
+            BOTS[id][key] = value;
+            return true;
+        } else return null;
+    },
+
     createBot: async function(id, name, desc) {
         const user = await DB.findUserById(id);
         if (config.VIP[user.vip].max_bot >= user.own_bots.length) return {
             status: false,
-            data : "MAX_BOTS"
+            data: "MAX_BOTS"
         }
-        
+
         const char = /^[a-zA-Z0-9]+$/;
         if (!char.test(name)) return {
             status: false,
             data: "BAD_NAME"
         }
 
-        if (await DB.findBotById(name)) return "BOTNAME_IN_USE";
+        if (await DB.findBotByName(name)) return {
+            status: false,
+            data: "BOTNAME_IN_USE"
+        }
 
         const bot_id = uid.num(10);
 
@@ -479,17 +503,19 @@ const DB = {
             link: config.URL + "/bot=" + bot_id,
             owner: id,
             pic: "",
-            commands : ["/start"],
+            commands: [{cmd : "/start" , desc : "Iniciar el Bot"}],
             desc: (desc ? desc : "Un bot que no hace nada :( \nAun ;)"),
             token: uid.alphanum(32),
             members: [owner],
-            lastBroadcast : (new Date().getTime() - (1000 * 60 * 60)),
-            isOnline : false,
-            lastTimeOnline : new Date().getTime()
+            groups: [],
+            channels: [],
+            lastBroadcast: (new Date().getTime() - (1000 * 60 * 60)),
+            isOnline: false,
+            lastTimeOnline: new Date().getTime()
         };
-        
+
         USERS[id].own_bots.push(bot_id);
-        
+
         return {
             status: true,
             data: BOTS[bot_id]
