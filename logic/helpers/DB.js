@@ -246,9 +246,9 @@ const DB = {
                     chat_id: Room,
                     type: "text",
                     reply: "",
-                    shared: false,
-                    isEdited: false,
-                    isBot: false,
+                    shared: 0,
+                    isEdited: 0,
+                    isBot: 0,
                     receivedBy: [],
                     seenBy: [],
                     inline: [],
@@ -300,9 +300,9 @@ const DB = {
                     chat_id: chat_id,
                     type: "text",
                     reply: "",
-                    shared: false,
-                    isEdited: false,
-                    isBot: false,
+                    shared: 0,
+                    isEdited: 0,
+                    isBot: 0,
                     receivedBy: [],
                     seenBy: [],
                     message: "Se ha creado la sala \"" + name + "\"",
@@ -403,7 +403,7 @@ const DB = {
         } else return null;
     },
 
-    newMess: async function(id, chat_id, mess_id, type, message, reply , isBot , inline , keyboard) {
+    newMess: async function(id, chat_id, mess_id, type, message, reply, isBot, inline, keyboard) {
         const user = await this.findUserById(id);
         if (!ROOMS[chat_id] && id != "SYSTEM") return null;
         const nmess = {
@@ -414,9 +414,9 @@ const DB = {
             chat_id: chat_id,
             type: type,
             reply: (reply ? reply : ""),
-            shared: false,
-            isEdited: false,
-            isBot: (isBot ? true : false),
+            shared: 0,
+            isEdited: 0,
+            isBot: (isBot ? 1 : 0),
             receivedBy: [],
             seenBy: [],
             message: message,
@@ -428,13 +428,20 @@ const DB = {
         return nmess;
     },
 
-    editTextMess: function(id, chat_id, mess_id, newMess, del) {
+    editTextMess: function(id, chat_id, mess_id, newMess, del , inline , keyboard) {
         if (!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
         const mess = ROOMS[chat_id].messages[mess_id];
-        if (mess.user_id != id && !del && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id)) return null;
+        if (mess.user_id != id && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id)) return null;
         if (mess.message == newMess) return null;
+        if (del) {
+            mess.message = newMess;
+            ROOMS[chat_id].messages[mess_id] = mess;
+            return mess;
+        }
         mess.message = newMess;
         mess.isEdited = true;
+        mess.inline = (inline ? inline : mess.inline);
+        mess.keyboard = (keyboard ? keyboard : mess.keyboard);
         ROOMS[chat_id].messages[mess_id] = mess;
         return mess;
     },
@@ -503,15 +510,17 @@ const DB = {
             link: config.URL + "/bot=" + bot_id,
             owner: id,
             pic: "",
-            commands: [{cmd : "/start" , desc : "Iniciar el Bot"}],
+            commands: [{ cmd: "/start", desc: "Iniciar el Bot" }],
             desc: (desc ? desc : "Un bot que no hace nada :( \nAun ;)"),
             token: uid.alphanum(32),
             members: [owner],
             groups: [],
             channels: [],
-            lastBroadcast: (new Date().getTime() - (1000 * 60 * 60)),
+            creationDate : new Date().getTime(),
+            lastBroadcast: (new Date().getTime() - (1000 * 60 * 60 * 6)),
             isOnline: false,
-            lastTimeOnline: new Date().getTime()
+            lastTimeOnline: new Date().getTime(),
+            stars: 0
         };
 
         USERS[id].own_bots.push(bot_id);

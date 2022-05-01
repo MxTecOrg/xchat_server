@@ -27,6 +27,8 @@ const config = {
             max_bots: 10,
             max_channels: 10,
             max_groups: 10,
+            bot_broadcast : 6, //h
+            bot_rps : 12, //s
             price: 0
         },
         "bronce": {
@@ -36,6 +38,8 @@ const config = {
             max_bots: 15,
             max_channels: 15,
             max_groups: 15,
+            bot_broadcast: 3, //h
+            bot_rps : 25, //s
             price: 25 //mn
         },
         "silver": {
@@ -45,6 +49,8 @@ const config = {
             max_bots: 20,
             max_channels: 20,
             max_groups: 20,
+            bot_broadcast: 1.5, //h
+            bot_rps: 50, //s
             price: 50 //mn
         },
         "gold": {
@@ -54,8 +60,10 @@ const config = {
             max_bots: 50,
             max_channels: 50,
             max_groups: 50,
+            bot_broadcast: 0.75, //h
+            bot_rps: 100, //s
             price: 75 //mn
-        },
+        }
     }
 };
 
