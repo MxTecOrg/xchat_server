@@ -35,7 +35,7 @@ const bot = async(io , socket , id) => {
         const mess = await DB.newMess(id, data.chat_id, mess_id, "text", data.message, data.reply , true , data.inline , data.keyboard);
         if(mess){
             if(room.type == "group" || room.type == "channel") io.to(data.chat_id).emit("message" , mess);
-            else if(room.type == "private" && io.sockets[room.members[Object.keys(room.members)[0]]])  io.sockets[room.members[Object.keys(room.members)[0]]].emit("message" , mess);
+            else if(room.type == "private" && io.sockets[room.members[0]])  io.sockets[room.members[0]].emit("message" , mess);
         }
     });
     
@@ -49,7 +49,7 @@ const bot = async(io , socket , id) => {
             const room = await DB.getRoom(r);
             const mess = await DB.newMess(id, r, mess_id, "text", message, false, true, [], []);
             if (mess && r) {
-                const rm = r.members[Object.keys(r.members)[0]];
+                const rm = r.members[0];
                 if(io.sockets[rm]) io.sockets[rm].emit("message", mess);
             }
         }
@@ -93,11 +93,21 @@ const bot = async(io , socket , id) => {
     });
     
     socket.on("edit-mess" , async (chat_id , mess_id , message) => {
-        DB.editTextMess(id, chat_id, mess_id, message);
+        const edit = DB.editTextMess(id, chat_id, mess_id, message);
+        const room = await DB.getRoom(chat_id);
+        if(edit) {
+            if(room.type == "group" || room.type == "channel") return io.to(data.chat_id).emit("edit-mess" , edit);
+            else if(io.sockets[room.members[0]]) io.sockets[room.members[0]].emit("edit-mess" , edit)
+        }
     });
     
     socket.on("del-mess" , async (chat_id , mess_id) => {
-        DB.delMess(id , chat_id , mess_id);
+        const del = DB.delMess(id , chat_id , mess_id);
+        const room = await DB.getRoom(chat_id);
+        if (del) {
+            if (room.type == "group" || room.type == "channel") return io.to(data.chat_id).emit("del-mess", edit);
+            else if (io.sockets[room.members[0]]) io.sockets[room.members[0]].emit("del-mess", del)
+        }
     });
     
     

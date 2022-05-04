@@ -39,6 +39,12 @@ const chat = async (io , socket , id) => {
         const mess = await DB.newMess(id , data.chat_id , mess_id , data.type , data.message , data.reply);
         if(mess) {
             await socket.to(data.chat_id).emit("message" , mess);
+            const r = await DB.getRoom(data.chat_id);
+           
+                for(let bot of r.bots){
+                    if(io.sockets[bot]) io.sockets[bot].emit("message" , mess);
+                }
+            
             socket.emit("arriv-mess" , {
                 arriv_id : data.arriv_id,
                 chat_id : data.chat_id,
@@ -63,16 +69,14 @@ const chat = async (io , socket , id) => {
     });
     
     socket.on("start-pv" , async (data) => {
-        if(!data.user_id) return socket.emit("toast" , {
-            status : false,
-            data : "DATA_ERROR"
-        });
+        if(!data.user_id) return socket.emit("toast" , "WRONG_DATA");
         const room = await DB.createPrivateRoom(id , data.user_id);
         if(!room.status) return socket.emit("toast" , room);
         socket.join(room.chat_id);
         if(io.sockets[data.user_id]) io.sockets[data.user_id].join(room.data.chat_id);
         io.of("/clients").to(room.data.chat_id).emit("new-pv" , room.data);
     });
+    
     
     socket.on("mess-r" , async (data) => {
         if(!data.chat_id || !data.mess_id) return;
@@ -98,7 +102,7 @@ const chat = async (io , socket , id) => {
                 name : room.name,
                 desc : room.desc,
                 pic : room.pic,
-                owner : await DB.findUserbyId(room.owner),
+                owner : await DB.findUserById(room.owner),
                 members : room.members.length,
                 bgColor: room.bgColor ,
                 textColor: room.textColor
@@ -135,7 +139,7 @@ const chat = async (io , socket , id) => {
     });
     
     socket.on("add-contact" , async (data) => {
-        const user = (await DB.findUserbyId(data) || await DB.findUserByMail(data));
+        const user = (await DB.findUserById(data) || await DB.findUserByMail(data));
         if(!user) return socket.emit("toast" , "USER_NOT_FOUND");
         if(user.id == id) return socket.emit("toast" , "CANNOT_SELF_ADD");
         if((await DB.getUserValue(id , "contacts")).includes(user.id)) return socket.emit("toast" , "ALREADY_IN_CONTACTS");
@@ -152,6 +156,8 @@ const chat = async (io , socket , id) => {
         }
         socket.emit("toast" , "USER_NOT_FOUND");
     });
+    
+    
     
 };
 

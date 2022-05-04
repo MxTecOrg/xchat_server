@@ -524,12 +524,27 @@ const DB = {
         };
 
         USERS[id].own_bots.push(bot_id);
+        USERS[id].bots.push(bot_id);
 
         return {
             status: true,
             data: BOTS[bot_id]
         };
 
+    },
+    
+    startBotRoom : async function(user_id , bot_id){
+        if(USERS[user_id].bots.includes(bot_id + "_" + user_id)) return {
+            status : false,
+            data : "ALREADY_IN_BOT"
+        };
+        
+        if(!BOTS[bot_id]) return {
+            status: false,
+            data : "BOT_NOT_EXISTS"
+        };
+        
+        
     }
 };
 
