@@ -3,20 +3,21 @@ const uid = require(config.LOGIC + "/helpers/uid.js");
 const bcrypt = require("bcryptjs");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 const sendToken = require("./sendToken.js");
+const { User } = require(config.LOGIC + "/helpers/_DB.js");
 
 /* Funtion register
-* @params req{ body : {username , email , password , rpassword , token}}
-* @params res {}
-*/
+ * @params req{ body : {username , email , password , rpassword , token}}
+ * @params res {}
+ */
 
-const register = async (req , res) => {
-  
+const register = async (req, res) => {
+
     let username,
-    email,
-    password,
-    rpassword,
-    token;
-  
+        email,
+        password,
+        rpassword,
+        token;
+
     try {
         const body = req.body;
         username = (body.username ? body.username : undefined);
@@ -30,7 +31,7 @@ const register = async (req , res) => {
             data: "DATA_ERROR"
         });
     }
-  
+
     if (!username) {
         return res.json({
             status: false,
@@ -40,7 +41,7 @@ const register = async (req , res) => {
 
     else if (!email) {
         return res.json({
-            status: false, 
+            status: false,
             data: "EMPTY_MAIL"
         });
     }
@@ -51,17 +52,21 @@ const register = async (req , res) => {
             data: "EMPTY_PASS"
         });
     }
-  
+
     else if (!validateEmail(email)) {
         return res.json({
             status: false,
             data: "WRONG_MAIL"
         });
     }
-  
+
+    /*
     if(DB.findUserByName(username)) return res.json({ status : false , data : "ACC_USE"});
     if(DB.findUserByMail(email)) return res.json({ status: false , data : "MAIL_USE"});
-    
+    */
+    if (await User.findOne({ username: username })) return res.json({ status: false, data: "ACC_USE" });
+    if (await User.findOne({ email: email })) return res.json({ status: false, data: "MAIL_USE" });
+
     const char = /^[a-zA-Z0-9]+$/;
     if (!char.test(username)) {
         return res.json({
@@ -69,7 +74,7 @@ const register = async (req , res) => {
             data: "USERNAME_BAD_CHAR"
         });
     }
-    
+
     if (password.length < 8) {
         return res.json({
             status: false,
@@ -83,7 +88,7 @@ const register = async (req , res) => {
             data: "PASS_NOT_MATCH"
         });
     }
-  
+    /*
     const account = {
         id: "",
         username: "",
@@ -120,26 +125,35 @@ const register = async (req , res) => {
     account.nickname = "user_" + uid.alphanum(4);
     account.email = email;
     account.password = bcrypt.hashSync(password, 10);
-  
+    */
+   
     try {
-        DB.addUser(account.id , account);
-        sendToken(email);
+        //DB.addUser(account.id, account);
+        await User.create({
+            user_id : parseInt(uid.num(8)),
+            username : username,
+            color: "#000000".replace(/0/g,function(){return (~~((Math.random()*10) + 6)).toString(16);}),
+            nickname: "xuser_" + uid.alphanum(6),
+            email: email,
+            password: bcrypt.hashSync(password , 10)
+        });
         
-/* For test */
- if(account.username == "Franky96") DB.createRoom("test_room" , "SYSTEM" , "Test Room" , "Sala de pruebas" , "" , [] , "public");
-        else DB.joinRoom(account.id ,"test_room");
+        sendToken(email);
 
+        /* For test 
+        if (account.username == "Franky96") DB.createRoom("test_room", "SYSTEM", "Test Room", "Sala de pruebas", "", [], "public");
+        else DB.joinRoom(account.id, "test_room");
+        */
         return res.json({
             status: true,
             data: "REGISTERED"
         });
-        
-     }catch (err) {
+
+    } catch (err) {
         console.log(err);
         return res.json({
             status: false,
-            data:
-            "DATA_ERROR",
+            data: "DATA_ERROR",
             error: err
         });
 

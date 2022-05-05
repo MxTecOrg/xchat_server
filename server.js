@@ -18,6 +18,7 @@ const webcli = require(config.WEBCLI + "/router.js");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const DB = require(config.LOGIC + "/helpers/DB.js");
+const _DB = require(config.LOGIC + "/helpers/_DB.js");
 
 app.use(cors());
 
