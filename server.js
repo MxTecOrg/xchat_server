@@ -17,7 +17,6 @@ const router = require(config.LOGIC + "/router.js");
 const webcli = require(config.WEBCLI + "/router.js");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const DB = require(config.LOGIC + "/helpers/DB.js");
 const _DB = require(config.LOGIC + "/helpers/_DB.js");
 
 app.use(cors());
@@ -47,9 +46,6 @@ app.use((req , res) => {
     status: false, message: "ERROR 404"});
 });
 
-/* Loading all db data */
-DB.loadAll();
-
 server.listen(config.PORT , (log) => console.log("Server running on port:" + config.PORT));
 
 /* Exporting and Importing socket.io methods */
@@ -57,5 +53,3 @@ module.exports = io;
 
 require(config.LOGIC + "/socket.js");
 
-/* Start saving db periodically */
-DB.autoSave(60 * 1000);

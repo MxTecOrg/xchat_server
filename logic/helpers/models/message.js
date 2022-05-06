@@ -67,3 +67,6 @@ const MessageModel = (DataTypes) => {
         }
     }
 };
+
+
+module.exports = MessageModel;

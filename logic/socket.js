@@ -4,7 +4,7 @@ const auth = require(config.LOGIC + "/auth/authenticator.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 const client = require(config.LOGIC + "/client/client.js");
 const bot = require(config.LOGIC + "/bot/bot.js");
-const {User} = require(config.LOGIC + "/_DB.js");
+const {User} = require(config.LOGIC + "/helpers/_DB.js");
 
 io.of("/client").on("connection", async (socket) => {
     if (!socket.handshake.query) {
@@ -48,7 +48,7 @@ io.of("/client").on("connection", async (socket) => {
 
     client(io, socket, id);
 
-    socket.on("disconnect", (data) => {
+    socket.on("disconnect", async (data) => {
         //DB.setUserValue(id, "isOnline", false);
         await user.setData({
             isOnline : false

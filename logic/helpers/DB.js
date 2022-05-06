@@ -7,24 +7,9 @@ const config = require("../../config.js");
 const uid = require(config.LOGIC + "/helpers/uid.js");
 const { User, Room, Message } = require("./_DB.js");
 
+var TOKEN_PAIRS = {};
+
 const DB = {
-
-    addContact: async function(id, contact) {
-        const user = await User.findOne({
-            where: {
-                user_id: id
-            }
-        });
-        const cont = await User.findOne({
-            where: {
-                user_id: contact
-            }
-        });
-
-        if (!user || !cont) return false;
-
-        
-    },
 
     addTokenPair: function(token, _token) {
         TOKEN_PAIRS[token] = _token;
