@@ -1,5 +1,5 @@
 const config = require("../../config.js");
-const { Sequelize, Model, DataTypes } = require("sequelize");
+const { Sequelize, Model, DataTypes, Op } = require("sequelize");
 const UserModel = require("./models/user.js");
 const RoomModel = require("./models/room.js");
 const MessageModel = require("./models/message.js");
@@ -163,5 +163,6 @@ Message.init(
 module.exports = {
     User,
     Room,
-    Message
+    Message,
+    Op
 }

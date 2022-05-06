@@ -5,200 +5,25 @@
 const fs = require("fs");
 const config = require("../../config.js");
 const uid = require(config.LOGIC + "/helpers/uid.js");
-
-var USERS = {},
-    ROOMS = {},
-    BOTS = {},
-    CHANNELS = {},
-    TOKEN_PAIRS = {};
+const { User, Room, Message } = require("./_DB.js");
 
 const DB = {
-    loadUsers: function() {
-        console.time("Users loaded in:");
-        const _users = fs.readdirSync(config.DB + "/users/");
-        try {
-            for (let u of _users) {
-                USERS[u.split(".")[0]] = JSON.parse(fs.readFileSync(config.DB + "/users/" + u));
+
+    addContact: async function(id, contact) {
+        const user = await User.findOne({
+            where: {
+                user_id: id
             }
-        } catch (err) {
-            console.error(err);
-        }
-        console.timeEnd("Users loaded in:");
-    },
-
-    loadRooms: function() {
-        console.time("Rooms loaded in:");
-        const _rooms = fs.readdirSync(config.DB + "/rooms/");
-        try {
-            for (let u of _rooms) {
-                ROOMS[u.split(".")[0]] = JSON.parse(fs.readFileSync(config.DB + "/rooms/" + u));
+        });
+        const cont = await User.findOne({
+            where: {
+                user_id: contact
             }
-        } catch (err) {
-            console.error(err);
-        }
-        console.timeEnd("Rooms loaded in:");
-    },
+        });
 
-    loadBots: function() {
-        console.time("Bots loaded in:");
-        const _bots = fs.readdirSync(config.DB + "/bots/");
-        try {
-            for (let u of _bots) {
-                BOTS[u.split(".")[0]] = JSON.parse(fs.readFileSync(config.DB + "/bots/" + u));
-            }
-        } catch (err) {
-            console.error(err);
-        }
-        console.timeEnd("Bots loaded in:");
-    },
+        if (!user || !cont) return false;
 
-    loadAll: function() {
-        this.loadUsers();
-        this.loadRooms();
-        this.loadBots();
-    },
-
-    saveUsers: async function() {
-        console.time("Users saved in:");
-        for (let u in USERS) {
-            await fs.writeFile(config.DB + "/users/" + u + ".json", JSON.stringify(USERS[u]), () => {});
-        }
-        console.timeEnd("Users saved in:");
-        return true;
-    },
-
-    saveRooms: async function() {
-        console.time("Rooms saved in:");
-        for (let u in ROOMS) {
-            await fs.writeFile(config.DB + "/rooms/" + u + ".json", JSON.stringify(ROOMS[u]), () => {});
-        }
-        console.timeEnd("Rooms saved in:");
-        return true;
-    },
-
-    saveBots: async function() {
-        console.time("Bots saved in:");
-        for (let u in BOTS) {
-            await fs.writeFile(config.DB + "/bots/" + u + ".json", JSON.stringify(BOTS[u]), () => {});
-        }
-        console.timeEnd("Bots saved in:");
-        return true;
-    },
-
-
-    autoSave: function(time) {
-        const su = this.saveUsers;
-        const sr = this.saveRooms;
-        const sb = this.saveBots;
-        async function s() {
-            await su();
-            await sr();
-            await sb();
-        }
-        setInterval(s, time);
-    },
-
-    addUser: function(id, data) {
-        if (!USERS[id]) {
-            USERS[id] = data;
-            return true;
-        } else return null;
-    },
-
-    delUser: function(id) {
-        if (!USERS[id]) {
-            delete USERS[id];
-            return true;
-        } else return null;
-    },
-
-    findUserById: function(id) {
-        if (USERS[id]) return USERS[id];
-        else return null;
-    },
-
-    findUserByName: function(user) {
-        for (let u in USERS) {
-            if (USERS[u].username == user) {
-                return USERS[u];
-            }
-        }
-        return null;
-    },
-
-    findUserByNick: function(nick) {
-        for (let u in USERS) {
-            if (USERS[u].nick == nick) {
-                return USERS[u];
-            }
-        }
-        return null;
-    },
-
-    findUserByMail: function(mail) {
-        for (let u in USERS) {
-            if (USERS[u].email == mail) {
-                return USERS[u];
-            }
-        }
-        return null;
-    },
-
-    findAllUsers: function(key, condition, value) {
-        let f = [];
-        for (let u in USERS) {
-            switch (condition) {
-                case "==":
-                    if (USERS[u][key] == value) f.push(USERS[u]);
-                    return f;
-                case "!=":
-                    if (USERS[u][key] != value) f.push(USERS[u]);
-                    return f;
-                case "<":
-                    if (USERS[u][key] < value) f.push(USERS[u]);
-                    return f;
-                case ">":
-                    if (USERS[u][key] > value) f.push(USERS[u]);
-                    return f;
-                case "<=":
-                    if (USERS[u][key] <= value) f.push(USERS[u]);
-                    return f;
-                case ">=":
-                    if (USERS[u][key] >= value) f.push(USERS[u]);
-                    return f;
-                default:
-                    f.push(USERS[u]);
-                    return f;
-            }
-        }
-        return f;
-    },
-
-    getUserValue: function(id, key) {
-        if (USERS[id]) {
-            return USERS[id][key];
-        } else return null;
-    },
-
-    setUserValue: function(id, key, value) {
-        if (USERS[id]) {
-            USERS[id][key] = value;
-            return true;
-        } else return null;
-    },
-
-    addUserValue: function(id, key, value) {
-        if (USERS[id]) {
-            USERS[id][key] += value;
-            return true;
-        } else return null;
-    },
-
-    addContact: function(id, user) {
-        if (USERS[users]) {
-            USERS[id].contacts.push(user);
-            return true;
-        } else return null;
+        
     },
 
     addTokenPair: function(token, _token) {
@@ -428,7 +253,7 @@ const DB = {
         return nmess;
     },
 
-    editTextMess: function(id, chat_id, mess_id, newMess, del , inline , keyboard) {
+    editTextMess: function(id, chat_id, mess_id, newMess, del, inline, keyboard) {
         if (!ROOMS[chat_id] || !ROOMS[chat_id].messages[mess_id]) return null;
         const mess = ROOMS[chat_id].messages[mess_id];
         if (mess.user_id != id && ROOMS[chat_id].owner != id && !ROOMS[chat_id].admins.includes(id)) return null;
@@ -516,7 +341,7 @@ const DB = {
             members: [owner],
             groups: [],
             channels: [],
-            creationDate : new Date().getTime(),
+            creationDate: new Date().getTime(),
             lastBroadcast: (new Date().getTime() - (1000 * 60 * 60 * 6)),
             isOnline: false,
             lastTimeOnline: new Date().getTime(),
@@ -532,19 +357,19 @@ const DB = {
         };
 
     },
-    
-    startBotRoom : async function(user_id , bot_id){
-        if(USERS[user_id].bots.includes(bot_id + "_" + user_id)) return {
-            status : false,
-            data : "ALREADY_IN_BOT"
-        };
-        
-        if(!BOTS[bot_id]) return {
+
+    startBotRoom: async function(user_id, bot_id) {
+        if (USERS[user_id].bots.includes(bot_id + "_" + user_id)) return {
             status: false,
-            data : "BOT_NOT_EXISTS"
+            data: "ALREADY_IN_BOT"
         };
-        
-        
+
+        if (!BOTS[bot_id]) return {
+            status: false,
+            data: "BOT_NOT_EXISTS"
+        };
+
+
     }
 };
 
