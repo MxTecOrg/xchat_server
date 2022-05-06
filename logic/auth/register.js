@@ -64,8 +64,12 @@ const register = async (req, res) => {
     if(DB.findUserByName(username)) return res.json({ status : false , data : "ACC_USE"});
     if(DB.findUserByMail(email)) return res.json({ status: false , data : "MAIL_USE"});
     */
-    if (await User.findOne({ username: username })) return res.json({ status: false, data: "ACC_USE" });
-    if (await User.findOne({ email: email })) return res.json({ status: false, data: "MAIL_USE" });
+    if (await User.findOne({
+        where : { username: username }
+        })) return res.json({ status: false, data: "ACC_USE" });
+    if (await User.findOne({
+        where : { email: email }
+        })) return res.json({ status: false, data: "MAIL_USE" });
 
     const char = /^[a-zA-Z0-9]+$/;
     if (!char.test(username)) {
@@ -126,18 +130,26 @@ const register = async (req, res) => {
     account.email = email;
     account.password = bcrypt.hashSync(password, 10);
     */
-   
+
     try {
         //DB.addUser(account.id, account);
-        await User.create({
-            user_id : parseInt(uid.num(8)),
-            username : username,
-            color: "#000000".replace(/0/g,function(){return (~~((Math.random()*10) + 6)).toString(16);}),
-            nickname: "xuser_" + uid.alphanum(6),
-            email: email,
-            password: bcrypt.hashSync(password , 10)
-        });
-        
+        try {
+            await User.create({
+                user_id: parseInt(uid.num(8)),
+                username: username,
+                color: "#000000".replace(/0/g, function() { return (~~((Math.random() * 10) + 6)).toString(16); }),
+                nickname: "xuser_" + uid.alphanum(6),
+                email: email,
+                password: bcrypt.hashSync(password, 10)
+            });
+        } catch (err) {
+            console.log(err);
+            return res.json({
+                status: false,
+                data: "DATA_ERROR",
+                error: err
+            });
+        }
         sendToken(email);
 
         /* For test 

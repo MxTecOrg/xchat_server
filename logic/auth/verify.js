@@ -2,35 +2,48 @@
 const config = require("../../config.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 
-const verify = async (req , res) => {
-    if(!req.body || !req.body.email || !req.body.token){
+const verify = async (req, res) => {
+    if (!req.body || !req.body.email || !req.body.token) {
         return res.json({
-            status : false,
-            data : "WRONG_DATA"
+            status: false,
+            data: "WRONG_DATA"
         });
     }
-  
+
     const pair = await DB.getTokenPair(req.body.email);
-    if(pair != req.body.token){
+    if (pair != req.body.token) {
         return res.json({
-            status : false,
-            data : "WRONG_TOKEN"
+            status: false,
+            data: "WRONG_TOKEN"
         });
     }
-  
-    const user = await DB.findUserByMail(req.body.email);
-    if(!user){
+
+    const user = await User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }); //await DB.findUserByMail(req.body.email);
+    if (!user) {
         return res.json({
-            status : false,
-            data : "USER_NOT_FOUND"
+            status: false,
+            data: "USER_NOT_FOUND"
         });
     }
-    
-    DB.setUserValue(user.id , "verified" , true);
-  
+    try {
+        await user.setData({
+            verified: true
+        });
+    } catch (err) {
+        return res.json({
+            status: false,
+            data: "UNEXPECTED_ERROR"
+        });
+    }
+    //DB.setUserValue(user.id , "verified" , true);
+
     res.json({
-        status : true,
-        data : "VERIFIED"
+        status: true,
+        data: "VERIFIED"
     });
 };
 

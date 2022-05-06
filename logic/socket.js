@@ -4,8 +4,9 @@ const auth = require(config.LOGIC + "/auth/authenticator.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 const client = require(config.LOGIC + "/client/client.js");
 const bot = require(config.LOGIC + "/bot/bot.js");
+const {User} = require(config.LOGIC + "/_DB.js");
 
-io.of("/client").on("connection", (socket) => {
+io.of("/client").on("connection", async (socket) => {
     if (!socket.handshake.query) {
         socket.emit("alert", "EMPTY_TOKEN");
         socket.disconnect();
@@ -23,8 +24,12 @@ io.of("/client").on("connection", (socket) => {
         socket.disconnect();
         return;
     }
-
-    if (!DB.findUserById(id)) {
+    const user = await User.findOne({
+        where : {
+            user_id : id
+        }
+    });
+    if (!user){ //!DB.findUserById(id)) {
         socket.emit("alert", "USER_NOT_FOUND");
         socket.disconnect();
         return;
@@ -36,12 +41,18 @@ io.of("/client").on("connection", (socket) => {
         delete io.sockets[id];
     }
     io.sockets[id] = socket;
-    DB.setUserValue(id, "isOnline", true);
+    //DB.setUserValue(id, "isOnline", true);
+    await user.setData({
+        isOnline : true
+    });
 
     client(io, socket, id);
 
     socket.on("disconnect", (data) => {
-        DB.setUserValue(id, "isOnline", false);
+        //DB.setUserValue(id, "isOnline", false);
+        await user.setData({
+            isOnline : false
+        });
         delete io.sockets[id];
     });
 });

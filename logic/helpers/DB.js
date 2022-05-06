@@ -308,7 +308,7 @@ const DB = {
                     message: "Se ha creado la sala \"" + name + "\"",
                     inline: [],
                     keyboard: [],
-                    date: new Date()
+                    date: new Date().getTime()
                 }
             },
             level: 1

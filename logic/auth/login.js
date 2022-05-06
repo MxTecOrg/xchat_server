@@ -2,6 +2,7 @@ const config = require("../../config.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
 const authenticator = require("./authenticator.js");
 const bcrypt = require("bcryptjs");
+const {User} = require(config.LOGIC + "/helpers/_DB.js");
 
 /* function login
 * @Method : POST
@@ -25,7 +26,11 @@ const login = async (req, res) => {
         });
     }
 
-    const account = await DB.findUserByName(username);
+    const account = await User.findOne({
+        where : {
+            username : username
+        }
+    });// await DB.findUserByName(username);
 
     if (!account) {
         return res.json({
@@ -49,15 +54,9 @@ const login = async (req, res) => {
         });
     }
 
-    if (account.id == null || account.id == undefined) {
-        return res.json({
-            status: false,
-            data: "ACC_ERROR"
-        });
-    }
     return res.json({
         status: true,
-        data: authenticator.generate(account.id)
+        data: authenticator.generate(account.user_id)
     });
 }
 

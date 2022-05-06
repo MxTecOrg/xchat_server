@@ -2,24 +2,32 @@
 const config = require("../../config.js");
 const uid = require(config.LOGIC + "/helpers/uid.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
+const {User , Room} = require(config.LOGIC + "/helpers/_DB.js");
 
 const chat = async (io , socket , id) => {
-    const user = await JSON.parse(JSON.stringify( DB.findUserById(id)));
-    delete user.password;
-    await socket.emit("load-user" , user);
-    const rooms = user.rooms;
+    const user = await User.findOne({
+        where : {
+            user_id : id
+        }
+    });//await JSON.parse(JSON.stringify( DB.findUserById(id)));
+    //delete user.password;
+    await socket.emit("load-user" , user.getData());
     
     socket.on("get-room-data" , async (data) => {
-        const room = await DB.getRoom(data.room);
+        if(!data.chat_id) return; //socket.emit("toast" , "NO_ROOM_PROVIDED");
+        const room = await Room.findOne({
+            where: {
+                chat_id : data.chat_id
+            }
+        });//await DB.getRoom(data.room);
         if(room){
-            const rm = JSON.parse(JSON.stringify(room));
-            delete rm.messages;
+            const rm = room.getData();
             if(rm.owner != id && !rm.admins.includes(id)) {
                 delete rm.link;
                 delete rm.banList;
             }
             socket.emit("get-room-data" , rm);
-            await socket.join(data.room);
+            await socket.join(data.chat_id);
         }
     });
     
