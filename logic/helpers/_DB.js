@@ -43,15 +43,11 @@ class User extends Model {
     async setData(obj) {
         let parsedObj = {};
         for (let o in obj) {
-            if (!this[o]) continue;
+            if (this[o] == undefined) continue;
             parsedObj[o] = (typeof(obj) === "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {
-            await this.update(parsedObj , {
-                where : {
-                    user_id : this.user_id
-                }
-            });
+            await this.update(parsedObj);
             return true;
         } catch (err) {
             console.err(err);
@@ -95,15 +91,11 @@ class Room extends Model {
     async setData(obj) {
         let parsedObj = {};
         for (let o in obj) {
-            if (!this[o]) continue;
+            if (this[o] == undefined) continue;
             parsedObj[o] = (typeof(obj) === "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {
-            await this.update(parsedObj , {
-                where: {
-                    chat_id : this.chat_id
-                }
-            });
+            await this.update(parsedObj);
             return true;
         } catch (err) {
             console.log(err);
@@ -146,7 +138,7 @@ class Message extends Model {
     async setData(obj) {
         let parsedObj = {};
         for (let o in obj) {
-            if (this[o] == null) continue;
+            if (this[o] == undefined) continue;
             parsedObj[o] = (typeof(obj) == "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {

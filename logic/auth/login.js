@@ -42,7 +42,8 @@ const login = async (req, res) => {
     if(!account.verified){
         return res.json({
             status : false,
-            data : "ACC_NOT_VERIFIED"
+            data : "ACC_NOT_VERIFIED",
+            email: account.email
         });
     }
 
