@@ -146,15 +146,11 @@ class Message extends Model {
     async setData(obj) {
         let parsedObj = {};
         for (let o in obj) {
-            if (!this[o]) continue;
+            if (this[o] == null) continue;
             parsedObj[o] = (typeof(obj) == "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {
-            await this.update(parsedObj , {
-                where : {
-                    mess_id : this.mess_id
-                }
-            });
+            await this.update(parsedObj);
             return true;
         } catch (err) {
             console.log(err);

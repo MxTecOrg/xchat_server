@@ -31,7 +31,7 @@ const verify = async (req, res) => {
         });
     }
     try {
-        await user.setData({
+        await user.update({
             verified: true
         });
     } catch (err) {
