@@ -17,7 +17,7 @@ const router = require(config.LOGIC + "/router.js");
 const webcli = require(config.WEBCLI + "/router.js");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const _DB = require(config.LOGIC + "/helpers/_DB.js");
+const {User , Room , Message} = require(config.LOGIC + "/helpers/_DB.js");
 
 app.use(cors());
 
@@ -40,6 +40,23 @@ app.post("/wakeup", (req, res) => {
         status: true
     });
 });
+
+app.get("/dropdb" , async (req , res) => {
+    await User.sync({
+        force: true
+    });
+    await Room.sync({
+        force: true
+    });
+    await Message.sync({
+        force: true
+    });
+    res.json({
+        status : true,
+        data: "DB dropped"
+    })
+});
+
 //Error 404
 app.use((req , res) => { 
     res.json({

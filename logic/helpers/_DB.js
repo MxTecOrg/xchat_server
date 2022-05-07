@@ -47,9 +47,14 @@ class User extends Model {
             parsedObj[o] = (typeof(obj) === "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {
-            await this.update(parsedObj);
+            await this.update(parsedObj , {
+                where : {
+                    user_id : this.user_id
+                }
+            });
             return true;
         } catch (err) {
+            console.err(err);
             return false;
         }
     }
@@ -94,9 +99,14 @@ class Room extends Model {
             parsedObj[o] = (typeof(obj) === "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {
-            await this.update(parsedObj);
+            await this.update(parsedObj , {
+                where: {
+                    chat_id : this.chat_id
+                }
+            });
             return true;
         } catch (err) {
+            console.log(err);
             return false;
         }
     }
@@ -140,9 +150,14 @@ class Message extends Model {
             parsedObj[o] = (typeof(obj) == "object" ? JSON.stringify(obj[o]) : obj[o]);
         }
         try {
-            await this.update(parsedObj);
+            await this.update(parsedObj , {
+                where : {
+                    mess_id : this.mess_id
+                }
+            });
             return true;
         } catch (err) {
+            console.log(err);
             return false;
         }
     }

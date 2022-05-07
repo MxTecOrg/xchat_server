@@ -28,7 +28,7 @@ const chat = async (io, socket, id) => {
                     delete rm.banList;
                 }
                 __r.push(rm)
-                await socket.join(r);
+                socket.join(r);
             }
         }
         socket.emit("get-room-data", __r)
@@ -51,11 +51,11 @@ const chat = async (io, socket, id) => {
                     }
                 }
             });
-            if(mess){
+            if (mess) {
                 messages = messages.concat(mess);
             }
         }
-        socket.emit("get-room-mess" , messages);
+        socket.emit("get-room-mess", messages);
     });
 
     socket.on("message", async (data) => {
@@ -63,24 +63,24 @@ const chat = async (io, socket, id) => {
         const mess_id = uid.num(8);
         const room = await Room.findOne({
             where: {
-                chat_id : data.chat_id
+                chat_id: data.chat_id
             }
         });
-        if(!room) return socket.emit("toast" , "ROOM_NOT_FOUND");
-        switch (data.type){
+        if (!room) return socket.emit("toast", "ROOM_NOT_FOUND");
+        switch (data.type) {
             case "text":
-                if(data.message.length < 1 || data.message.length > 1000) return socket.emit("toast" , "MESS_WRONG_LENGTH");
+                if (data.message.length < 1 || data.message.length > 1000) return socket.emit("toast", "MESS_WRONG_LENGTH");
                 const mess = await Message.create({
-                    mess_id : mess_id,
-                    chat_id : data.chat_id,
-                    type : data.type,
-                    user_id : id,
-                    message : data.message,
+                    mess_id: mess_id,
+                    chat_id: data.chat_id,
+                    type: data.type,
+                    user_id: id,
+                    message: data.message,
                     reply: (!isNaN(data.reply) ? data.reply : null),
                     date: new Date().getTime()
                 });
-                if(mess){
-                    await socket.to(data.chat_id).emit("message" , mess.getData());
+                if (mess) {
+                    await socket.to(data.chat_id).emit("message", mess.getData());
                     for (let bot of room.bots) {
                         if (io.sockets[bot]) io.sockets[bot].emit("message", mess);
                     }
@@ -92,18 +92,53 @@ const chat = async (io, socket, id) => {
                 }
                 break;
             default:
-                socket.emit("toast" , "MESS_TYPE_NOT_FOUND");
+                socket.emit("toast", "MESS_TYPE_NOT_FOUND");
                 break;
         }
     });
 
     socket.on("create-room", async (data) => {
         const chat_id = uid.num(12);
-
-        const room = await DB.createRoom(chat_id, id, data.name, data.desc, data.pic, data.members, data.type);
+        const user = await User.findOne({
+            where: {
+                user_id: id
+            }
+        }).getData();
+        if (config.VIP[user.vip].max_own_groups <= user.own_rooms.length) return null;
+        let mem = [id];
+        if (!data.members) data.members = [];
+        for (let m of members) {
+            const memb = await User.findOne({
+                where: {
+                    user_id: m
+                }
+            })
+            if (memb && memb.acceptInvitations) {
+                mem.push(m);
+            }
+        }
+        const room = await Room.create({
+            chat_id: chat_id,
+            owner: id,
+            name: data.name,
+            desc: data.desc,
+            pic: (data.pic ? data.pic : ""),
+            members: (typeof(data.members) == "object" ? JSON.stringify(data.members) : data.members),
+            type: "group"
+        });
         if (!room) return socket.emit("toast", "CANNOT_CREATE_ROOM");
 
         for (let m of room.members) {
+            const membe = await User.findOne({
+                where: {
+                    user_id: m
+                }
+            });
+            let mm = membe.getData();
+            mm.rooms.push(chat_id);
+            membe.setData({
+                rooms: membe.rooms
+            });
             if (io.sockets[m]) {
                 await io.sockets[m].join(chat_id);
             }
@@ -114,39 +149,80 @@ const chat = async (io, socket, id) => {
 
     socket.on("start-pv", async (data) => {
         if (!data.user_id) return socket.emit("toast", "WRONG_DATA");
-        const room = await DB.createPrivateRoom(id, data.user_id);
-        if (!room.status) return socket.emit("toast", room);
-        socket.join(room.chat_id);
-        if (io.sockets[data.user_id]) io.sockets[data.user_id].join(room.data.chat_id);
-        io.of("/clients").to(room.data.chat_id).emit("new-pv", room.data);
+        const ouser = await User.findOne({
+            where: {
+                user_id: data.user_id
+            }
+        });
+        if (!ouser) return socket.emit("toast", "USER_NOT_FOUND");
+        const _ouser = ouser.getData();
+        if (ouser.banList.includes(id)) return socket.emit("toast", "USER_BANNED_U");
+        const user = await User.findOne({
+            where: {
+                user_id: id
+            }
+        });
+        const _user = user.getData();
+        const croom = Room.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        chat_id: id + user_id
+                    }, {
+                        chat_id: user_id + id
+                    }
+                ]
+            }
+        });
+        if (!croom) return socket.emit("toast", "ROOM_EXISTS");
+        const chat_id = id + user_id;
+        const room = Room.create({
+            chat_id: chat_id,
+            owner: id,
+            name: "SYSTEM",
+            desc: "SYSTEM",
+            pic: "",
+            members: JSON.stringify([id , user_id]),
+            type: "private"
+        });
+        if(!room) return socket.emit("toast" , "UNEXPECTED_ERROR");
+        _user.rooms.push(chat_id);
+        _ouser.rooms.push(chat_id);
+        
+        user.setData({
+            rooms : _user.rooms
+        });
+        
+        ouser.setData({
+            rooms : _ouser.rooms
+        });
+        
+        socket.join(chat_id);
+        if (io.sockets[user_id]) io.sockets[user_id].join(chat_id);
+        io.of("/client").to(chat_id).emit("new-pv", room.getData());
     });
 
-
-    socket.on("mess-r", async (data) => {
-        if (!data.chat_id || !data.mess_id) return;
-        const mess = await DB.setReceived(id, data.chat_id, data.mess_id);
-        if (mess) {
-            if (io.sockets[mess.user_id]) return io.sockets[mess.user_id].emit("mess-r", { user_id: id, chat_id: mess.chat_id, mess_id: mess.mess_id });
-        }
-    });
 
     socket.on("find-room-from-link", async (link) => {
-        const chat_id = await DB.findRoomByLink(link);
-        if (!chat_id) return socket.emit("bottomsheet", "NOT_FOUND");
-        const room = await DB.getRoom(chat_id);
-        if (!room) return socket.emit("bottomsheet", {
+        const _room = await Room.findOne({
+            where : {
+                link : link
+            }
+        });
+        if (!_room) return socket.emit("bottomsheet", {
             status: false,
             data: "NOT_FOUND"
         });
+        const room = _room.getData();
 
         socket.emit("bottomsheet", {
             status: true,
             data: {
-                chat_id: chat_id,
+                chat_id: room.chat_id,
                 name: room.name,
                 desc: room.desc,
                 pic: room.pic,
-                owner: await DB.findUserById(room.owner),
+                owner: await User.findOne(room.owner).nickname,
                 members: room.members.length,
                 bgColor: room.bgColor,
                 textColor: room.textColor
