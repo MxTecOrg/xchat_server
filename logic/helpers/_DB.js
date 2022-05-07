@@ -9,7 +9,8 @@ const MessageModel = require("./models/message.js");
  **********************/
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: config.DB + '/database.sqlite'
+    storage: config.DB + '/database.sqlite',
+    loggin: false
 });
 
 (async () => {

@@ -26,8 +26,8 @@ const MessageModel = (DataTypes) => {
             defaultValue: "text"
         },
         reply:{
-            type: DataTypes.STRING,
-            defaultValue: ""
+            type: DataTypes.INTEGER,
+            allowNull: true
         },
         shared : {
             type: DataTypes.INTEGER,

@@ -60,23 +60,40 @@ const chat = async (io, socket, id) => {
 
     socket.on("message", async (data) => {
         if (!data.arriv_id || !data.chat_id || !data.type || !data.message) return;
-        if (data.type == "text" && data.message == "") return;
         const mess_id = uid.num(8);
-
-        const mess = await DB.newMess(id, data.chat_id, mess_id, data.type, data.message, data.reply);
-        if (mess) {
-            await socket.to(data.chat_id).emit("message", mess);
-            const r = await DB.getRoom(data.chat_id);
-
-            for (let bot of r.bots) {
-                if (io.sockets[bot]) io.sockets[bot].emit("message", mess);
+        const room = await Room.findOne({
+            where: {
+                chat_id : data.chat_id
             }
-
-            socket.emit("arriv-mess", {
-                arriv_id: data.arriv_id,
-                chat_id: data.chat_id,
-                mess_id: mess_id
-            });
+        });
+        if(!room) return socket.emit("toast" , "ROOM_NOT_FOUND");
+        switch (data.type){
+            case "text":
+                if(data.message.length < 1 || data.message.length > 1000) return socket.emit("toast" , "MESS_WRONG_LENGTH");
+                const mess = await Message.create({
+                    mess_id : mess_id,
+                    chat_id : data.chat_id,
+                    type : data.type,
+                    user_id : id,
+                    message : data.message,
+                    reply: (!isNaN(data.reply) ? data.reply : null),
+                    date: new Date().getTime()
+                });
+                if(mess){
+                    await socket.to(data.chat_id).emit("message" , mess.getData());
+                    for (let bot of room.bots) {
+                        if (io.sockets[bot]) io.sockets[bot].emit("message", mess);
+                    }
+                    socket.emit("arriv-mess", {
+                        arriv_id: data.arriv_id,
+                        chat_id: data.chat_id,
+                        mess_id: mess_id
+                    });
+                }
+                break;
+            default:
+                socket.emit("toast" , "MESS_TYPE_NOT_FOUND");
+                break;
         }
     });
 

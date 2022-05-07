@@ -1,6 +1,7 @@
 /**/
 const config = require("../../config.js");
 const DB = require(config.LOGIC + "/helpers/DB.js");
+const { User } = require(config.LOGIC + "/helpers/_DB.js");
 
 const verify = async (req, res) => {
     if (!req.body || !req.body.email || !req.body.token) {
@@ -22,7 +23,7 @@ const verify = async (req, res) => {
         where: {
             email: req.body.email
         }
-    }); //await DB.findUserByMail(req.body.email);
+    });
     if (!user) {
         return res.json({
             status: false,
@@ -39,7 +40,6 @@ const verify = async (req, res) => {
             data: "UNEXPECTED_ERROR"
         });
     }
-    //DB.setUserValue(user.id , "verified" , true);
 
     res.json({
         status: true,
