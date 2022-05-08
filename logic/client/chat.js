@@ -258,37 +258,32 @@ const chat = async (io, socket, id) => {
     });
 
     socket.on("add-contact", async (data) => {
-        if (data == id) return socket.emit("toast", "CANNOT_SELF_ADD");
+        
         const u = await User.findOne({
             where: {
                 user_id: id
             }
         });
-
+        
+        if (data == u.email) return socket.emit("toast", "CANNOT_SELF_ADD");
 
         const user = await User.findOne({
             where: {
-                [Op.or]: [
-                    {
-                        user_id: data
-                    },
-                    {
-                        email: data
-                    }
-                ]
+                email: data
             }
         });
         if (!user) return socket.emit("toast", "USER_NOT_FOUND");
         if (u.contacts.includes(user.user_id)) return socket.emit("toast", "ALREADY_IN_CONTACTS");
 
-        u.contacts.push(contact);
+        const us = u.getData();
+        us.contacts.push(user.user_id);
         try {
             await u.setData({
-                contacts: u.contacts
+                contacts: us.contacts
             });
 
             return socket.emit("add-contact", {
-                id: user.user_id,
+                user_id: user.user_id,
                 email: user.email,
                 nick: user.nick,
                 pic: user.pic,

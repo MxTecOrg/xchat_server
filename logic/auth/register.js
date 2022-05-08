@@ -38,6 +38,13 @@ const register = async (req, res) => {
             data: "EMPTY_USER"
         });
     }
+    
+    if(username.length < 5){
+        return res.json({
+            status: false,
+            data: "USER_LENGTH"
+        })
+    }
 
     else if (!email) {
         return res.json({
