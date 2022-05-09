@@ -182,21 +182,21 @@ const chat = async (io, socket, id) => {
             name: "SYSTEM",
             desc: "SYSTEM",
             pic: "",
-            members: JSON.stringify([id , user_id]),
+            members: JSON.stringify([id, user_id]),
             type: "private"
         });
-        if(!room) return socket.emit("toast" , "UNEXPECTED_ERROR");
+        if (!room) return socket.emit("toast", "UNEXPECTED_ERROR");
         _user.rooms.push(chat_id);
         _ouser.rooms.push(chat_id);
-        
+
         user.setData({
-            rooms : _user.rooms
+            rooms: _user.rooms
         });
-        
+
         ouser.setData({
-            rooms : _ouser.rooms
+            rooms: _ouser.rooms
         });
-        
+
         socket.join(chat_id);
         if (io.sockets[user_id]) io.sockets[user_id].join(chat_id);
         io.of("/client").to(chat_id).emit("new-pv", room.getData());
@@ -205,8 +205,8 @@ const chat = async (io, socket, id) => {
 
     socket.on("find-room-from-link", async (link) => {
         const _room = await Room.findOne({
-            where : {
-                link : link
+            where: {
+                link: link
             }
         });
         if (!_room) return socket.emit("bottomsheet", {
@@ -258,22 +258,31 @@ const chat = async (io, socket, id) => {
     });
 
     socket.on("add-contact", async (data) => {
-        
+
         const u = await User.findOne({
             where: {
                 user_id: id
             }
         });
-        
-        if (data == u.email) return socket.emit("toast", "CANNOT_SELF_ADD");
+
+        if (data == u.email) return socket.emit("add-contact", {
+            status: false,
+            data: "CANNOT_SELF_ADD"
+        });
 
         const user = await User.findOne({
             where: {
                 email: data
             }
         });
-        if (!user) return socket.emit("toast", "USER_NOT_FOUND");
-        if (u.contacts.includes(user.user_id)) return socket.emit("toast", "ALREADY_IN_CONTACTS");
+        if (!user) return socket.emit("add-contact", {
+            status: false,
+            data : "USER_NOT_FOUND"
+        });
+        if (u.contacts.includes(user.user_id)) return socket.emit("add-contact", {
+            status: false,
+            data : "ALREADY_IN_CONTACTS"
+        });
 
         const us = u.getData();
         us.contacts.push(user.user_id);
@@ -283,6 +292,8 @@ const chat = async (io, socket, id) => {
             });
 
             return socket.emit("add-contact", {
+                status : true,
+                data :{
                 user_id: user.user_id,
                 email: user.email,
                 nick: user.nick,
@@ -290,9 +301,12 @@ const chat = async (io, socket, id) => {
                 desc: user.desc,
                 color: user.color,
                 statuses: user.statuses
+                }
             });
         } catch (err) {
-            return socket.emit("toast", "USER_NOT_FOUND");
+            return socket.emit("add-contact", {
+                status : false ,
+                data : "USER_NOT_FOUND"});
         }
     });
 
