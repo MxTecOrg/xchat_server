@@ -277,11 +277,11 @@ const chat = async (io, socket, id) => {
         });
         if (!user) return socket.emit("add-contact", {
             status: false,
-            data : "USER_NOT_FOUND"
+            data: "USER_NOT_FOUND"
         });
         if (u.contacts.includes(user.user_id)) return socket.emit("add-contact", {
             status: false,
-            data : "ALREADY_IN_CONTACTS"
+            data: "ALREADY_IN_CONTACTS"
         });
 
         const us = u.getData();
@@ -292,22 +292,53 @@ const chat = async (io, socket, id) => {
             });
 
             return socket.emit("add-contact", {
-                status : true,
-                data :{
-                user_id: user.user_id,
-                email: user.email,
-                nick: user.nick,
-                pic: user.pic,
-                desc: user.desc,
-                color: user.color,
-                statuses: user.statuses
+                status: true,
+                data: {
+                    user_id: user.user_id,
+                    email: user.email,
+                    nick: user.nick,
+                    pic: user.pic,
+                    desc: user.desc,
+                    color: user.color,
+                    statuses: user.statuses
                 }
             });
         } catch (err) {
             return socket.emit("add-contact", {
-                status : false ,
-                data : "USER_NOT_FOUND"});
+                status: false,
+                data: "USER_NOT_FOUND"
+            });
         }
+    });
+
+    socket.on("get-contact-data", async (user_id) => {
+        const user = await User.findOne({
+            where: {
+                user_id: id
+            }
+        });
+
+        const o_user = await User.findOne({
+            where: {
+                user_id: user_id
+            }
+        });
+
+        if (!o_user) return socket.emit("error", "USER_NOT_FOUND");
+        const u = user.getData();
+        if (!u.contacts.includes(user_id)) return socket.emit("error", "NOT_IN_CONTACT");
+
+        const _u = o_user.getData();
+        socket.emit("get-contact-data", {
+            user_id: _u.user_id,
+            email: _u.email,
+            nick: _u.nick,
+            pic: _u.pic,
+            desc: _u.desc,
+            color: _u.color,
+            statuses: _u.statuses
+        });
+
     });
 
 
