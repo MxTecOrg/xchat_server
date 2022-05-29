@@ -11,6 +11,25 @@ const user = await User.findOne({
     }
 });
 const user_data = user.getData();
+let ncontacts = [];
+for(let c of user_data.contacts){
+    const con = await User.findOne({
+        where: {
+            user_id: c
+        }
+    });
+    if(con){
+        const co = con.getData();
+        ncontacts.push({
+            user_id: co.user_id,
+            email: co.email,
+            pic: co.pic,
+            desc: co.desc,
+            isOnline: co.isOnline
+        });
+    } 
+}
+user_data.contacts = ncontacts;
 await socket.emit("load-user", user_data);
 
 socket.on("get-room-data", async () => {
