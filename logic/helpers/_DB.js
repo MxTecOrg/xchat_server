@@ -26,7 +26,7 @@ const sequelize = new Sequelize({
  *********************/
 class User extends Model {
     getData() {
-        const rows = ["user_id", "nickname", "color", "desc", "pic", "rooms", "bots", "channels", "own_rooms", "own_bots", "own_channels", "banList", "contacts", "statuses", "xcoins", "isOnline", "lastTimeOnline", "vip"];
+        const rows = ["user_id", "nickname", "email" , "color", "desc", "pic", "rooms", "bots", "channels", "own_rooms", "own_bots", "own_channels", "banList", "contacts", "statuses", "xcoins", "isOnline", "lastTimeOnline", "vip"];
         let ret = {};
         for (let row of rows) {
             if (this[row]) {
